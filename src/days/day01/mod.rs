@@ -40,28 +40,28 @@ use itertools::Itertools;
 
 const INPUT_VALUES: &str = include_str!("input.txt");
 
-pub fn run_ex1() -> u64 {
+pub fn run_ex1() -> usize {
     multiply_values(search_if_eq_2020(INPUT_VALUES, 2))
 }
 
-pub fn run_ex2() -> u64 {
+pub fn run_ex2() -> usize {
     multiply_values(search_if_eq_2020(INPUT_VALUES, 3))
 }
 
-fn multiply_values(values: Vec<u64>) -> u64 {
+fn multiply_values(values: Vec<usize>) -> usize {
     values.iter().product()
 }
 
-fn search_if_eq_2020(entries_content: &str, combinations: usize) -> Vec<u64> {
+fn search_if_eq_2020(entries_content: &str, combinations: usize) -> Vec<usize> {
     search_if_eq(entries_content, combinations, 2020)
 }
 
-fn search_if_eq(entries_content: &str, combinations: usize, target: u64) -> Vec<u64> {
+fn search_if_eq(entries_content: &str, combinations: usize, target: usize) -> Vec<usize> {
     entries_content
         .lines()
-        .filter_map(|s| s.parse::<u64>().ok())
+        .filter_map(|s| s.parse::<usize>().ok())
         .combinations(combinations)
-        .find(|v| v.iter().sum::<u64>() == target)
+        .find(|v| v.iter().sum::<usize>() == target)
         .unwrap_or_else(Vec::new)
 }
 
@@ -69,8 +69,8 @@ fn search_if_eq(entries_content: &str, combinations: usize, target: u64) -> Vec<
 mod tests {
     use super::*;
 
-    const EX1_OUTPUT: u64 = 987339;
-    const EX2_OUTPUT: u64 = 259521570;
+    const EX1_OUTPUT: usize = 987339;
+    const EX2_OUTPUT: usize = 259521570;
 
     #[test]
     fn test_multiply_values() {
