@@ -8,6 +8,7 @@ use super::days;
 #[derive(Debug, StructOpt)]
 enum Days {
     Day01,
+    Day02,
 }
 
 #[derive(Debug, StructOpt)]
@@ -35,6 +36,13 @@ pub fn initialize_command_line() -> Result<()> {
                     days::day01::run_ex1(),
                     days::day01::run_ex2()
                 );
+            }
+            Days::Day02 => {
+                println!(
+                    "Day 02:\n  - Ex1: {}\n  - Ex2: {}",
+                    days::day02::run_ex1(),
+                    days::day02::run_ex2()
+                )
             }
         },
     }
