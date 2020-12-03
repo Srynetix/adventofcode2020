@@ -48,23 +48,41 @@ static PASSWORD_RGX: Lazy<Regex> = Lazy::new(|| {
         .expect("Bad regex format")
 });
 
+/// Part one answer.
 pub fn run_ex1() -> usize {
     validate_multiple_passwords_with_count(INPUT_VALUES)
 }
 
+/// Part two answer.
 pub fn run_ex2() -> usize {
     validate_multiple_passwords_with_position(INPUT_VALUES)
 }
 
-fn validate_multiple_passwords_with_count(entries: &str) -> usize {
+/// Validate multiple passwords with count.
+///
+/// # Arguments
+///
+/// * `entries` - Input text
+pub fn validate_multiple_passwords_with_count(entries: &str) -> usize {
     validate_multiple_passwords_with_fn(entries, validate_password_with_count)
 }
 
-fn validate_multiple_passwords_with_position(entries: &str) -> usize {
+/// Validate multiple passwords with character position.
+///
+/// # Arguments
+///
+/// * `entries` - Input text
+pub fn validate_multiple_passwords_with_position(entries: &str) -> usize {
     validate_multiple_passwords_with_fn(entries, validate_password_with_position)
 }
 
-fn validate_multiple_passwords_with_fn<F>(entries: &str, func: F) -> usize
+/// Validate multiple passwords using function.
+///
+/// # Arguments
+///
+/// * `entries` - Input text
+/// * `func` - Function
+pub fn validate_multiple_passwords_with_fn<F>(entries: &str, func: F) -> usize
 where
     F: Fn(&str) -> Result<bool>,
 {
@@ -74,13 +92,31 @@ where
         .sum::<usize>()
 }
 
-fn validate_password_with_count(entry: &str) -> Result<bool> {
+/// Validate password with count.
+///
+/// # Arguments
+///
+/// * `entry` - Password
+///
+/// # Errors
+///
+/// * Bad password entry
+pub fn validate_password_with_count(entry: &str) -> Result<bool> {
     let (min_v, max_v, char_v, password) = parse_password_entry(entry)?;
     let count = password.chars().filter(|c| *c == char_v).count();
     Ok(count <= max_v && count >= min_v)
 }
 
-fn validate_password_with_position(entry: &str) -> Result<bool> {
+/// Validate password with character position.
+///
+/// # Arguments
+///
+/// * `entry` - Password
+///
+/// # Errors
+///
+/// * Bad password entry
+pub fn validate_password_with_position(entry: &str) -> Result<bool> {
     let (min_v, max_v, char_v, password) = parse_password_entry(entry)?;
     let bytes = password.as_bytes();
     let char_b = char_v as u8;
@@ -96,7 +132,16 @@ fn validate_password_with_position(entry: &str) -> Result<bool> {
     })
 }
 
-fn parse_password_entry(entry: &str) -> Result<(usize, usize, char, &str)> {
+/// Parse password entry.
+///
+/// # Arguments
+///
+/// * `entry` - Password
+///
+/// # Errors
+///
+/// * Bad password entry
+pub fn parse_password_entry(entry: &str) -> Result<(usize, usize, char, &str)> {
     if let Some(captures) = PASSWORD_RGX.captures(entry) {
         return Ok((
             captures

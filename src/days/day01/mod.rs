@@ -39,24 +39,32 @@
 use itertools::Itertools;
 
 const INPUT_VALUES: &str = include_str!("input.txt");
+const SEARCH_TARGET: usize = 2020;
+const EX1_COMBINATIONS: usize = 2;
+const EX2_COMBINATIONS: usize = 3;
 
+/// Part one answer.
 pub fn run_ex1() -> usize {
-    multiply_values(search_if_eq_2020(INPUT_VALUES, 2))
+    search_if_eq(INPUT_VALUES, EX1_COMBINATIONS, SEARCH_TARGET)
+        .into_iter()
+        .product()
 }
 
+/// Part two answer.
 pub fn run_ex2() -> usize {
-    multiply_values(search_if_eq_2020(INPUT_VALUES, 3))
+    search_if_eq(INPUT_VALUES, EX2_COMBINATIONS, SEARCH_TARGET)
+        .into_iter()
+        .product()
 }
 
-fn multiply_values(values: Vec<usize>) -> usize {
-    values.iter().product()
-}
-
-fn search_if_eq_2020(entries_content: &str, combinations: usize) -> Vec<usize> {
-    search_if_eq(entries_content, combinations, 2020)
-}
-
-fn search_if_eq(entries_content: &str, combinations: usize, target: usize) -> Vec<usize> {
+/// Search first combination of length `combinations` which sum equals to `target`.
+///
+/// # Arguments
+///
+/// * `entries_content` - Input text
+/// * `combinations` - Combinations length
+/// * `target` - Target value
+pub fn search_if_eq(entries_content: &str, combinations: usize, target: usize) -> Vec<usize> {
     entries_content
         .lines()
         .filter_map(|s| s.parse::<usize>().ok())
@@ -69,22 +77,15 @@ fn search_if_eq(entries_content: &str, combinations: usize, target: usize) -> Ve
 mod tests {
     use super::*;
 
-    const EX1_OUTPUT: usize = 987339;
-    const EX2_OUTPUT: usize = 259521570;
+    const EX1_OUTPUT: usize = 987_339;
+    const EX2_OUTPUT: usize = 259_521_570;
 
     #[test]
-    fn test_multiply_values() {
-        assert_eq!(multiply_values(vec![]), 1);
-        assert_eq!(multiply_values(vec![2020, 0]), 0);
-        assert_eq!(multiply_values(vec![2020, 2]), 4040);
-    }
-
-    #[test]
-    fn test_search_if_eq_2020() {
-        assert_eq!(search_if_eq_2020("1234\n5678\n2020\n0", 2), vec![2020, 0]);
-        assert_eq!(search_if_eq_2020("1234\n5678", 2), vec![]);
-        assert_eq!(search_if_eq_2020("", 2), vec![]);
-        assert_eq!(search_if_eq_2020("1234", 2), vec![]);
+    fn test_search_if_eq() {
+        assert_eq!(search_if_eq("1234\n5678\n2020\n0", 2, 2020), vec![2020, 0]);
+        assert_eq!(search_if_eq("1234\n5678", 2, 2020), vec![]);
+        assert_eq!(search_if_eq("", 2, 2020), vec![]);
+        assert_eq!(search_if_eq("1234", 2, 2020), vec![]);
     }
 
     #[test]

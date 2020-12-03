@@ -1,6 +1,5 @@
 //! Shell module
 
-use eyre::Result;
 use structopt::StructOpt;
 
 use super::days;
@@ -9,6 +8,7 @@ use super::days;
 enum Days {
     Day01,
     Day02,
+    Day03,
 }
 
 #[derive(Debug, StructOpt)]
@@ -25,7 +25,8 @@ struct Opt {
     cmd: Command,
 }
 
-pub fn initialize_command_line() -> Result<()> {
+/// Initialize command line arguments.
+pub fn initialize_command_line() {
     let args = Opt::from_args();
 
     match args.cmd {
@@ -44,8 +45,13 @@ pub fn initialize_command_line() -> Result<()> {
                     days::day02::run_ex2()
                 )
             }
+            Days::Day03 => {
+                println!(
+                    "Day 03:\n  - Ex1: {}\n  - Ex2: {}",
+                    days::day03::run_ex1(),
+                    days::day03::run_ex2()
+                )
+            }
         },
     }
-
-    Ok(())
 }
