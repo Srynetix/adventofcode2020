@@ -13,3 +13,5 @@ itertools = "0.9"
 once_cell = "1.4"
 structopt = "0.3"
 regex = "1.4"
+serde = { version = "1", features = ["derive"]}
+serde_plain = "0.3"

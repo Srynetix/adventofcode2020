@@ -24,6 +24,8 @@ dependencies = [
  "itertools",
  "once_cell",
  "regex",
+ "serde",
+ "serde_plain",
  "structopt",
 ]
 
@@ -419,6 +421,15 @@ checksum = "dcac07dbffa1c65e7f816ab9eba78eb142c6d44410f4eeba1e26e4f5dfa56b95"
 dependencies = [
  "itoa",
  "ryu",
+ "serde",
+]
+
+[[package]]
+name = "serde_plain"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "625fb0da2b006092b426a94acc1611bec52f2ec27bb27b266a9f93c29ee38eda"
+dependencies = [
  "serde",
 ]
 
