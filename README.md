@@ -14,3 +14,4 @@
 - [x] Day 04
 - [x] Day 05
 - [x] Day 06
+- [x] Day 07
