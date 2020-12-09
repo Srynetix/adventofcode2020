@@ -14,6 +14,7 @@ enum Days {
     Day06,
     Day07,
     Day08,
+    Day09,
 }
 
 #[derive(Debug, StructOpt)]
@@ -90,6 +91,13 @@ pub fn initialize_command_line() {
                     "Day 08:\n  - Ex1: {}\n  - Ex2: {}",
                     days::day08::run_ex1(),
                     days::day08::run_ex2()
+                )
+            }
+            Days::Day09 => {
+                println!(
+                    "Day 09:\n  - Ex1: {}\n  - Ex2: {}",
+                    days::day09::run_ex1(),
+                    days::day09::run_ex2()
                 )
             }
         },
