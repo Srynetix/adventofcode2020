@@ -104,24 +104,24 @@ use serde::Deserialize;
 const INPUT_VALUES: &str = include_str!("input.txt");
 
 /// Part one answer.
-pub fn run_ex1() -> isize {
+pub fn run_ex1() -> usize {
     if let StepOutput::LoopFound(e) = Interpreter::new_from_code(INPUT_VALUES)
         .expect("Bad code")
         .run()
     {
-        e
+        e as usize
     } else {
         panic!("Code should loop");
     }
 }
 
 /// Part two answer.
-pub fn run_ex2() -> isize {
+pub fn run_ex2() -> usize {
     if let StepOutput::Finished(e) = Interpreter::new_from_code(INPUT_VALUES)
         .expect("Bad code")
         .run_repair_mode()
     {
-        e
+        e as usize
     } else {
         panic!("Code should finish");
     }
