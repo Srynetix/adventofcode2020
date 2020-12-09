@@ -1,28 +1,19 @@
 //! Shell module
 
+use eyre::{eyre, Result};
 use structopt::StructOpt;
 
 use super::days;
 
 #[derive(Debug, StructOpt)]
-enum Days {
-    Day01,
-    Day02,
-    Day03,
-    Day04,
-    Day05,
-    Day06,
-    Day07,
-    Day08,
-    Day09,
-}
-
-#[derive(Debug, StructOpt)]
 enum Command {
+    /// Run one specific day
     Run {
-        #[structopt(subcommand)]
-        day: Days,
+        /// Day
+        day: usize,
     },
+    /// Run all days
+    RunAll,
 }
 
 #[derive(Debug, StructOpt)]
@@ -31,75 +22,45 @@ struct Opt {
     cmd: Command,
 }
 
+fn run_day<F1, F2>(day: usize, ex1: F1, ex2: F2) -> Result<()>
+where
+    F1: Fn() -> usize,
+    F2: Fn() -> usize,
+{
+    println!("Day {:2} - [Ex1] {:10} - [Ex2] {:10}", day, ex1(), ex2());
+    Ok(())
+}
+
+fn run_day_wrapper(day: usize) -> Result<()> {
+    match day {
+        d @ 1 => run_day(d, days::day01::run_ex1, days::day01::run_ex2),
+        d @ 2 => run_day(d, days::day02::run_ex1, days::day02::run_ex2),
+        d @ 3 => run_day(d, days::day03::run_ex1, days::day03::run_ex2),
+        d @ 4 => run_day(d, days::day04::run_ex1, days::day04::run_ex2),
+        d @ 5 => run_day(d, days::day05::run_ex1, days::day05::run_ex2),
+        d @ 6 => run_day(d, days::day06::run_ex1, days::day06::run_ex2),
+        d @ 7 => run_day(d, days::day07::run_ex1, days::day07::run_ex2),
+        d @ 8 => run_day(d, days::day08::run_ex1, days::day08::run_ex2),
+        d @ 9 => run_day(d, days::day09::run_ex1, days::day09::run_ex2),
+        d => Err(eyre!("Unknown day: {}", d)),
+    }
+}
+
 /// Initialize command line arguments.
 pub fn initialize_command_line() {
     let args = Opt::from_args();
 
     match args.cmd {
-        Command::Run { day } => match day {
-            Days::Day01 => {
-                println!(
-                    "Day 01:\n  - Ex1: {}\n  - Ex2: {}",
-                    days::day01::run_ex1(),
-                    days::day01::run_ex2()
-                );
+        Command::Run { day } => {
+            if let Err(e) = run_day_wrapper(day) {
+                eprintln!("Error: {}", e);
             }
-            Days::Day02 => {
-                println!(
-                    "Day 02:\n  - Ex1: {}\n  - Ex2: {}",
-                    days::day02::run_ex1(),
-                    days::day02::run_ex2()
-                )
+        }
+        Command::RunAll => {
+            let mut day_idx = 1;
+            while run_day_wrapper(day_idx).is_ok() {
+                day_idx += 1;
             }
-            Days::Day03 => {
-                println!(
-                    "Day 03:\n  - Ex1: {}\n  - Ex2: {}",
-                    days::day03::run_ex1(),
-                    days::day03::run_ex2()
-                )
-            }
-            Days::Day04 => {
-                println!(
-                    "Day 04:\n  - Ex1: {}\n  - Ex2: {}",
-                    days::day04::run_ex1(),
-                    days::day04::run_ex2()
-                )
-            }
-            Days::Day05 => {
-                println!(
-                    "Day 05:\n  - Ex1: {}\n  - Ex2: {}",
-                    days::day05::run_ex1(),
-                    days::day05::run_ex2()
-                )
-            }
-            Days::Day06 => {
-                println!(
-                    "Day 06:\n  - Ex1: {}\n  - Ex2: {}",
-                    days::day06::run_ex1(),
-                    days::day06::run_ex2()
-                )
-            }
-            Days::Day07 => {
-                println!(
-                    "Day 07:\n  - Ex1: {}\n  - Ex2: {}",
-                    days::day07::run_ex1(),
-                    days::day07::run_ex2()
-                )
-            }
-            Days::Day08 => {
-                println!(
-                    "Day 08:\n  - Ex1: {}\n  - Ex2: {}",
-                    days::day08::run_ex1(),
-                    days::day08::run_ex2()
-                )
-            }
-            Days::Day09 => {
-                println!(
-                    "Day 09:\n  - Ex1: {}\n  - Ex2: {}",
-                    days::day09::run_ex1(),
-                    days::day09::run_ex2()
-                )
-            }
-        },
+        }
     }
 }

@@ -1,6 +1,3 @@
-# Variables
-day := "00"
-
 # Format code
 fmt:
 	cargo fmt --all
@@ -23,6 +20,3 @@ test:
 
 doc:
 	cargo doc --no-deps --open
-
-run-day:
-	cargo run -- run day{{ day }}
