@@ -27,7 +27,7 @@ where
     F1: Fn() -> usize,
     F2: Fn() -> usize,
 {
-    println!("Day {:2} - [Ex1] {:10} - [Ex2] {:10}", day, ex1(), ex2());
+    println!("Day {:<2} > [Ex1] {:<16} | [Ex2] {:<16}", day, ex1(), ex2());
     Ok(())
 }
 
@@ -42,6 +42,7 @@ fn run_day_wrapper(day: usize) -> Result<()> {
         d @ 7 => run_day(d, days::day07::run_ex1, days::day07::run_ex2),
         d @ 8 => run_day(d, days::day08::run_ex1, days::day08::run_ex2),
         d @ 9 => run_day(d, days::day09::run_ex1, days::day09::run_ex2),
+        d @ 10 => run_day(d, days::day10::run_ex1, days::day10::run_ex2),
         d => Err(eyre!("Unknown day: {}", d)),
     }
 }

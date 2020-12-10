@@ -8,12 +8,9 @@
 
 ## Completed days
 
-- [x] Day 01
-- [x] Day 02
-- [x] Day 03
-- [x] Day 04
-- [x] Day 05
-- [x] Day 06
-- [x] Day 07
-- [x] Day 08
-- [x] Day 09
+|Days||Mon|Tue|Wed|Thu|Fri|Sat|Sun|
+|-----|-|---|---|---|---|---|---|---|
+|**1 - 6**||&mdash;|:star::star:|:star::star:|:star::star:|:star::star:|:star::star:|:star::star:|
+|**7 - 13**||:star::star:|:star::star:|:star::star:|:star::star:|:clock2:|:clock2:|:clock2:|
+|**14 - 20**||:clock2:|:clock2:|:clock2:|:clock2:|:clock2:|:clock2:|:clock2:|
+|**21 - 25**||:clock2:|:clock2:|:clock2:|:clock2:|:clock2:|&mdash;|&mdash;|
