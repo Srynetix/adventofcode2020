@@ -18,5 +18,10 @@ lint:
 test:
 	cargo test --all
 
+# Generate documentation
 doc:
+	cargo doc --no-deps
+
+# Generate documentation and open target file in browser
+doc-open:
 	cargo doc --no-deps --open
