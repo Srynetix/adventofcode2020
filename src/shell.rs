@@ -31,19 +31,20 @@ where
     Ok(())
 }
 
-fn run_day_wrapper(day: usize) -> Result<()> {
-    match day {
-        d @ 1 => run_day(d, days::day01::run_ex1, days::day01::run_ex2),
-        d @ 2 => run_day(d, days::day02::run_ex1, days::day02::run_ex2),
-        d @ 3 => run_day(d, days::day03::run_ex1, days::day03::run_ex2),
-        d @ 4 => run_day(d, days::day04::run_ex1, days::day04::run_ex2),
-        d @ 5 => run_day(d, days::day05::run_ex1, days::day05::run_ex2),
-        d @ 6 => run_day(d, days::day06::run_ex1, days::day06::run_ex2),
-        d @ 7 => run_day(d, days::day07::run_ex1, days::day07::run_ex2),
-        d @ 8 => run_day(d, days::day08::run_ex1, days::day08::run_ex2),
-        d @ 9 => run_day(d, days::day09::run_ex1, days::day09::run_ex2),
-        d @ 10 => run_day(d, days::day10::run_ex1, days::day10::run_ex2),
-        d => Err(eyre!("Unknown day: {}", d)),
+fn run_day_wrapper(d: usize) -> Result<()> {
+    match d {
+        1 => run_day(d, days::day01::run_ex1, days::day01::run_ex2),
+        2 => run_day(d, days::day02::run_ex1, days::day02::run_ex2),
+        3 => run_day(d, days::day03::run_ex1, days::day03::run_ex2),
+        4 => run_day(d, days::day04::run_ex1, days::day04::run_ex2),
+        5 => run_day(d, days::day05::run_ex1, days::day05::run_ex2),
+        6 => run_day(d, days::day06::run_ex1, days::day06::run_ex2),
+        7 => run_day(d, days::day07::run_ex1, days::day07::run_ex2),
+        8 => run_day(d, days::day08::run_ex1, days::day08::run_ex2),
+        9 => run_day(d, days::day09::run_ex1, days::day09::run_ex2),
+        10 => run_day(d, days::day10::run_ex1, days::day10::run_ex2),
+        11 => run_day(d, days::day11::run_ex1, days::day11::run_ex2),
+        _ => Err(eyre!("Unknown day: {}", d)),
     }
 }
 
