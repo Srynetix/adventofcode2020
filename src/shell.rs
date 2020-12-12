@@ -44,6 +44,7 @@ fn run_day_wrapper(d: usize) -> Result<()> {
         9 => run_day(d, days::day09::run_ex1, days::day09::run_ex2),
         10 => run_day(d, days::day10::run_ex1, days::day10::run_ex2),
         11 => run_day(d, days::day11::run_ex1, days::day11::run_ex2),
+        12 => run_day(d, days::day12::run_ex1, days::day12::run_ex2),
         _ => Err(eyre!("Unknown day: {}", d)),
     }
 }
