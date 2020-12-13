@@ -313,6 +313,17 @@ pub struct SeatLayoutStats {
     pub occupied_seats: usize,
 }
 
+impl SeatLayoutStats {
+    /// Creates empty stats.
+    pub const fn new_empty() -> Self {
+        Self {
+            total_seats: 0,
+            free_seats: 0,
+            occupied_seats: 0,
+        }
+    }
+}
+
 /// Seat layout
 #[derive(Debug)]
 pub struct SeatLayout {
@@ -423,7 +434,11 @@ impl SeatLayout {
     }
 
     /// Step simulation.
-    pub fn step(&mut self) {
+    pub fn step(&mut self) -> SeatLayoutStats {
+        let mut total_seats = 0;
+        let mut free_seats = 0;
+        let mut occupied_seats = 0;
+
         let (w, h) = self.get_size();
 
         for j in 0..h {
@@ -431,14 +446,36 @@ impl SeatLayout {
                 let old_state = self.frontbuffer[j][i];
                 let new_state = self.update_state_from_neighbors(i, j, old_state);
                 self.backbuffer[j][i] = new_state;
+
+                match new_state {
+                    SeatState::Floor => (),
+                    SeatState::Free => {
+                        total_seats += 1;
+                        free_seats += 1;
+                    }
+                    SeatState::Occupied => {
+                        total_seats += 1;
+                        occupied_seats += 1;
+                    }
+                }
             }
         }
 
         self.swap_buffers();
+
+        SeatLayoutStats {
+            total_seats,
+            free_seats,
+            occupied_seats,
+        }
     }
 
     /// Step simulation with visibility check.
-    pub fn step_with_visibility(&mut self) {
+    pub fn step_with_visibility(&mut self) -> SeatLayoutStats {
+        let mut total_seats = 0;
+        let mut free_seats = 0;
+        let mut occupied_seats = 0;
+
         let (w, h) = self.get_size();
 
         for j in 0..h {
@@ -446,20 +483,36 @@ impl SeatLayout {
                 let old_state = self.frontbuffer[j][i];
                 let new_state = self.update_state_from_visibility(i, j, old_state);
                 self.backbuffer[j][i] = new_state;
+
+                match new_state {
+                    SeatState::Floor => (),
+                    SeatState::Free => {
+                        total_seats += 1;
+                        free_seats += 1;
+                    }
+                    SeatState::Occupied => {
+                        total_seats += 1;
+                        occupied_seats += 1;
+                    }
+                }
             }
         }
 
         self.swap_buffers();
+
+        SeatLayoutStats {
+            total_seats,
+            free_seats,
+            occupied_seats,
+        }
     }
 
     /// Run steps until the simulation is stable.
     pub fn run_until_stable(&mut self) -> SeatLayoutStats {
-        let mut last_stats = self.get_stats();
+        let mut last_stats = SeatLayoutStats::new_empty();
 
         loop {
-            self.step();
-
-            let new_stats = self.get_stats();
+            let new_stats = self.step();
             if new_stats == last_stats {
                 return new_stats;
             } else {
@@ -470,12 +523,10 @@ impl SeatLayout {
 
     /// Run steps with visibility until the simulation is stable.
     pub fn run_with_visibility_until_stable(&mut self) -> SeatLayoutStats {
-        let mut last_stats = self.get_stats();
+        let mut last_stats = SeatLayoutStats::new_empty();
 
         loop {
-            self.step_with_visibility();
-
-            let new_stats = self.get_stats();
+            let new_stats = self.step_with_visibility();
             if new_stats == last_stats {
                 return new_stats;
             } else {
@@ -561,37 +612,6 @@ impl SeatLayout {
         }
     }
 
-    /// Get layout stats
-    pub fn get_stats(&self) -> SeatLayoutStats {
-        let mut total_seats = 0;
-        let mut free_seats = 0;
-        let mut occupied_seats = 0;
-
-        let (w, h) = self.get_size();
-        for j in 0..h {
-            for i in 0..w {
-                let state = self.frontbuffer[j][i];
-                match state {
-                    SeatState::Floor => (),
-                    SeatState::Free => {
-                        total_seats += 1;
-                        free_seats += 1;
-                    }
-                    SeatState::Occupied => {
-                        total_seats += 1;
-                        occupied_seats += 1;
-                    }
-                }
-            }
-        }
-
-        SeatLayoutStats {
-            total_seats,
-            free_seats,
-            occupied_seats,
-        }
-    }
-
     /// Write layout to string
     pub fn write_to_string(&self) -> String {
         let (w, h) = self.get_size();
@@ -664,12 +684,8 @@ mod tests {
     #[test]
     fn test_step() {
         let mut layout = SeatLayout::from_input(SAMPLE_LAYOUT).unwrap();
-        let stats = layout.get_stats();
-        assert_eq!(stats.free_seats, stats.total_seats);
-        assert_eq!(stats.occupied_seats, 0);
 
-        layout.step();
-        let stats = layout.get_stats();
+        let stats = layout.step();
         assert_eq!(stats.free_seats, 0);
         assert_eq!(stats.occupied_seats, stats.total_seats);
     }

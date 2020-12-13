@@ -20,4 +20,4 @@ jobs:
     - name: Get just
       run: curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to .
     - name: Lint, build and test
-      run: ./just fmt-check lint build test
+      run: ./just fmt-check lint-err build test
