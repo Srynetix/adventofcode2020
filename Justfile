@@ -1,27 +1,54 @@
-# Format code
+#########
+# Options
+
+opt_fmt_check := "false"
+opt_lint_err := "false"
+opt_doc_open := "false"
+
+#################
+# Format and lint
+
 fmt:
-	cargo fmt --all
+	cargo fmt --all {{ if opt_fmt_check == "true" { "-- --check" } else { "" } }}
 
-# Check if format is correct
 fmt-check:
-	cargo fmt --all -- --check
+	@just opt_fmt_check=true fmt
 
-# Build application
-build:
-	cargo build
-
-# Lint code
 lint:
-	touch src/lib.rs && cargo clippy --all --all-features -- -D warnings
+	touch src/lib.rs && cargo clippy --all --all-features {{ if opt_lint_err == "true" { "-- -D warnings" } else { "" } }}
 
-# Test application
+lint-err:
+	@just opt_lint_err=true lint
+
+#######
+# Tests
+
 test:
 	cargo test --all
 
-# Generate documentation
-doc:
-	cargo doc --no-deps
+test-day day:
+	cargo test days::day{{ day }}
 
-# Generate documentation and open target file in browser
+###############
+# Documentation
+
+doc:
+	cargo doc --no-deps {{ if opt_doc_open == "true" { "--open" } else { "" } }} 
+
 doc-open:
-	cargo doc --no-deps --open
+	@just opt_doc_open=true doc
+
+###############
+# Build and run
+
+# Build app
+build:
+	cargo build
+
+# Run all days
+run-all:
+	cargo run -- run-all
+
+# Run day
+run day:
+	cargo run -- run {{ day }}
