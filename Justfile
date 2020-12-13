@@ -38,8 +38,12 @@ doc:
 doc-open:
 	@just opt_doc_open=true doc
 
-#####
-# Run
+###############
+# Build and run
+
+# Build app
+build:
+	cargo build
 
 # Run all days
 run-all:
