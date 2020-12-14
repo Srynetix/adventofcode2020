@@ -15,7 +15,7 @@ fmt-check:
 	@just opt_fmt_check=true fmt
 
 lint:
-	touch src/lib.rs && cargo clippy --all --all-features {{ if opt_lint_err == "true" { "-- -D warnings" } else { "" } }}
+	touch src/lib.rs && cargo clippy --all --all-features --tests {{ if opt_lint_err == "true" { "-- -D warnings" } else { "" } }}
 
 lint-err:
 	@just opt_lint_err=true lint
