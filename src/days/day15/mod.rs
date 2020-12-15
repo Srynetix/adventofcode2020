@@ -58,7 +58,7 @@ use std::collections::VecDeque;
 use eyre::{eyre, Result};
 
 const INPUT_VALUES: &str = include_str!("input.txt");
-const INITIAL_BUFFER_SIZE: usize = 1_048_576;   // 1 MB
+const INITIAL_BUFFER_SIZE: usize = 1_048_576; // 1 MB
 
 /// Part one answer.
 pub fn run_ex1() -> usize {
