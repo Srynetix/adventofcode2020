@@ -58,6 +58,7 @@ use std::collections::VecDeque;
 use eyre::{eyre, Result};
 
 const INPUT_VALUES: &str = include_str!("input.txt");
+const INITIAL_BUFFER_SIZE: usize = 1_048_576;   // 1 MB
 
 /// Part one answer.
 pub fn run_ex1() -> usize {
@@ -108,7 +109,7 @@ impl MemoryGame {
     /// * `input` - Input vec
     pub fn from_vec(input: Vec<usize>) -> Self {
         Self {
-            memory: vec![0; 65_536],
+            memory: vec![0; INITIAL_BUFFER_SIZE],
             input: input.into(),
             turn: 1,
         }
@@ -123,7 +124,7 @@ impl MemoryGame {
         let i = self.input.pop_front().unwrap_or(0);
 
         if i >= self.memory.len() {
-            self.memory.resize(i + 1, 0);
+            self.memory.resize(i * 2, 0);
         }
 
         let t = self.memory[i];
