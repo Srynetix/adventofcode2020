@@ -53,7 +53,7 @@
 //!
 //! Given your starting numbers, what will be the 30000000th number spoken?
 
-use std::collections::{HashMap, VecDeque};
+use std::collections::VecDeque;
 
 use eyre::{eyre, Result};
 
@@ -77,7 +77,7 @@ pub fn run_ex2() -> usize {
 
 /// Memory game
 pub struct MemoryGame {
-    memory: HashMap<usize, usize>,
+    memory: Vec<usize>,
     input: VecDeque<usize>,
     turn: usize,
 }
@@ -108,7 +108,7 @@ impl MemoryGame {
     /// * `input` - Input vec
     pub fn from_vec(input: Vec<usize>) -> Self {
         Self {
-            memory: HashMap::new(),
+            memory: vec![0; 65_536],
             input: input.into(),
             turn: 1,
         }
@@ -122,13 +122,17 @@ impl MemoryGame {
     pub fn step(&mut self) -> Result<usize> {
         let i = self.input.pop_front().unwrap_or(0);
 
-        if let Some(value) = self.memory.get(&i) {
-            self.input.push_back(self.turn - *value);
+        if i >= self.memory.len() {
+            self.memory.resize(i + 1, 0);
         }
 
-        self.memory.insert(i, self.turn);
-        self.turn += 1;
+        let t = self.memory[i];
+        if t > 0 {
+            self.input.push_back(self.turn - t);
+        }
 
+        self.memory[i] = self.turn;
+        self.turn += 1;
         Ok(i)
     }
 
