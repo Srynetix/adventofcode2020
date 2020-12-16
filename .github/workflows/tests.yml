@@ -18,5 +18,5 @@ jobs:
           target
         key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
     - uses: extractions/setup-just@v1
-    - name: Lint, build and test
-      run: just fmt-check lint-err build test
+    - name: Lint, test, build and run
+      run: just fmt-check lint-err test build run-all
