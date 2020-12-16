@@ -12,5 +12,5 @@
 |-----|-|---|---|---|---|---|---|---|
 |**1 - 6**||&mdash;|:star::star:|:star::star:|:star::star:|:star::star:|:star::star:|:star::star:|
 |**7 - 13**||:star::star:|:star::star:|:star::star:|:star::star:|:star::star:|:star::star:|:star::star:|
-|**14 - 20**||:star::star:|:star::star:|:clock2:|:clock2:|:clock2:|:clock2:|:clock2:|
+|**14 - 20**||:star::star:|:star::star:|:star::star:|:clock2:|:clock2:|:clock2:|:clock2:|
 |**21 - 25**||:clock2:|:clock2:|:clock2:|:clock2:|:clock2:|&mdash;|&mdash;|
