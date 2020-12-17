@@ -1,6 +1,6 @@
 //! Conway 4D
 
-use std::collections::HashMap;
+use std::collections::HashSet;
 use std::convert::{TryFrom, TryInto};
 
 use super::common::{Cell, DayError, Vec4};
@@ -8,16 +8,16 @@ use super::common::{Cell, DayError, Vec4};
 /// Game of Life in an 'infinite' 4D grid
 #[derive(Debug, Default)]
 pub struct Conway4D {
-    map: HashMap<Vec4, Cell>,
-    buffer: HashMap<Vec4, Cell>,
+    map: HashSet<Vec4>,
+    buffer: HashSet<Vec4>,
 }
 
 impl Conway4D {
     /// Creates new game.
     pub fn new() -> Self {
         Self {
-            map: HashMap::new(),
-            buffer: HashMap::new(),
+            map: HashSet::new(),
+            buffer: HashSet::new(),
         }
     }
 
@@ -28,8 +28,16 @@ impl Conway4D {
     /// * `position` - Grid position (x, y, z, t)
     /// * `state` - Cell state
     pub fn set_cell_state(&mut self, position: Vec4, state: Cell) {
-        self.map.insert(position, state);
-        self.buffer.insert(position, state);
+        match state {
+            Cell::Active => {
+                self.map.insert(position);
+                self.buffer.insert(position);
+            }
+            Cell::Inactive => {
+                self.map.remove(&position);
+                self.buffer.remove(&position);
+            }
+        }
     }
 
     /// Set multiple cell states.
@@ -49,7 +57,9 @@ impl Conway4D {
     ///
     /// * `position` - Position
     pub fn get_cell_at_position(&self, position: Vec4) -> Cell {
-        self.map.get(&position).cloned().unwrap_or(Cell::Inactive)
+        self.map
+            .get(&position)
+            .map_or(Cell::Inactive, |_| Cell::Active)
     }
 
     /// Get active neighbors count from position.
@@ -85,15 +95,32 @@ impl Conway4D {
 
     /// Returns minimum and maximum bounds.
     pub fn get_bounds(&self) -> (Vec4, Vec4) {
+        let (mut min_x, mut min_y, mut min_z, mut min_t) =
+            (isize::MAX, isize::MAX, isize::MAX, isize::MAX);
+        let (mut max_x, mut max_y, mut max_z, mut max_t) =
+            (isize::MIN, isize::MIN, isize::MIN, isize::MIN);
+
+        for p in &self.map {
+            min_x = min_x.min(p.x);
+            min_y = min_y.min(p.y);
+            min_z = min_z.min(p.z);
+            min_t = min_t.min(p.t);
+
+            max_x = max_x.max(p.x);
+            max_y = max_y.max(p.y);
+            max_z = max_z.max(p.z);
+            max_t = max_t.max(p.t);
+        }
+
         (
-            self.map.keys().min().copied().unwrap(),
-            self.map.keys().max().copied().unwrap(),
+            (min_x, min_y, min_z, min_t).into(),
+            (max_x, max_y, max_z, max_t).into(),
         )
     }
 
     /// Count active cells.
     pub fn count_active_cells(&self) -> usize {
-        self.map.values().filter(|&&x| x == Cell::Active).count()
+        self.map.len()
     }
 
     /// Execute a simulation step.
@@ -116,15 +143,23 @@ impl Conway4D {
                             _ => old_state,
                         };
 
-                        self.buffer.insert(position, new_state);
+                        match new_state {
+                            Cell::Active => {
+                                self.buffer.insert(position);
+                            }
+                            Cell::Inactive => {
+                                self.buffer.remove(&position);
+                            }
+                        }
                     }
                 }
             }
         }
 
         // Swap buffers
-        for (k, v) in &self.buffer {
-            self.map.insert(*k, *v);
+        self.map.clear();
+        for k in &self.buffer {
+            self.map.insert(*k);
         }
     }
 

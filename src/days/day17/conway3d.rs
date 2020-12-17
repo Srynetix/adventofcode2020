@@ -1,6 +1,6 @@
 //! Conway 3D
 
-use std::collections::HashMap;
+use std::collections::HashSet;
 use std::convert::{TryFrom, TryInto};
 
 use super::common::{Cell, DayError, Vec3};
@@ -8,16 +8,16 @@ use super::common::{Cell, DayError, Vec3};
 /// Game of Life in an 'infinite' 3D grid
 #[derive(Debug, Default)]
 pub struct Conway3D {
-    map: HashMap<Vec3, Cell>,
-    buffer: HashMap<Vec3, Cell>,
+    map: HashSet<Vec3>,
+    buffer: HashSet<Vec3>,
 }
 
 impl Conway3D {
     /// Creates new game.
     pub fn new() -> Self {
         Self {
-            map: HashMap::new(),
-            buffer: HashMap::new(),
+            map: HashSet::new(),
+            buffer: HashSet::new(),
         }
     }
 
@@ -28,8 +28,16 @@ impl Conway3D {
     /// * `position` - Grid position (x, y, z)
     /// * `state` - Cell state
     pub fn set_cell_state(&mut self, position: Vec3, state: Cell) {
-        self.map.insert(position, state);
-        self.buffer.insert(position, state);
+        match state {
+            Cell::Active => {
+                self.map.insert(position);
+                self.buffer.insert(position);
+            }
+            Cell::Inactive => {
+                self.map.remove(&position);
+                self.buffer.remove(&position);
+            }
+        }
     }
 
     /// Set multiple cell states.
@@ -49,7 +57,9 @@ impl Conway3D {
     ///
     /// * `position` - Position
     pub fn get_cell_at_position(&self, position: Vec3) -> Cell {
-        self.map.get(&position).cloned().unwrap_or(Cell::Inactive)
+        self.map
+            .get(&position)
+            .map_or(Cell::Inactive, |_| Cell::Active)
     }
 
     /// Get active neighbors count from position.
@@ -81,15 +91,25 @@ impl Conway3D {
 
     /// Returns minimum and maximum bounds.
     pub fn get_bounds(&self) -> (Vec3, Vec3) {
-        (
-            self.map.keys().min().copied().unwrap(),
-            self.map.keys().max().copied().unwrap(),
-        )
+        let (mut min_x, mut min_y, mut min_z) = (isize::MAX, isize::MAX, isize::MAX);
+        let (mut max_x, mut max_y, mut max_z) = (isize::MIN, isize::MIN, isize::MIN);
+
+        for p in &self.map {
+            min_x = min_x.min(p.x);
+            min_y = min_y.min(p.y);
+            min_z = min_z.min(p.z);
+
+            max_x = max_x.max(p.x);
+            max_y = max_y.max(p.y);
+            max_z = max_z.max(p.z);
+        }
+
+        ((min_x, min_y, min_z).into(), (max_x, max_y, max_z).into())
     }
 
     /// Count active cells.
     pub fn count_active_cells(&self) -> usize {
-        self.map.values().filter(|&&x| x == Cell::Active).count()
+        self.map.len()
     }
 
     /// Execute a simulation step.
@@ -111,14 +131,21 @@ impl Conway3D {
                         _ => old_state,
                     };
 
-                    self.buffer.insert(position, new_state);
+                    match new_state {
+                        Cell::Active => {
+                            self.buffer.insert(position);
+                        }
+                        Cell::Inactive => {
+                            self.buffer.remove(&position);
+                        }
+                    }
                 }
             }
         }
 
-        // Swap buffers
-        for (k, v) in &self.buffer {
-            self.map.insert(*k, *v);
+        self.map.clear();
+        for k in &self.buffer {
+            self.map.insert(*k);
         }
     }
 
@@ -202,12 +229,13 @@ mod tests {
     fn test_step() {
         let mut game = Conway3D::try_from(SAMPLE).unwrap();
         assert_eq!(game.get_bounds(), ((0, 0, 0).into(), (2, 2, 0).into()));
-        game.step();
-        assert_eq!(game.get_bounds(), ((-1, -1, -1).into(), (3, 3, 1).into()));
 
-        assert_eq!(game.get_cell_at_position((0, 1, -1).into()), Cell::Active);
-        assert_eq!(game.get_cell_at_position((2, 2, -1).into()), Cell::Active);
-        assert_eq!(game.get_cell_at_position((1, 3, -1).into()), Cell::Active);
+        game.step();
+        assert_eq!(game.get_bounds(), ((0, 1, -1).into(), (2, 3, 1).into()));
+        assert_eq!(game.count_active_cells(), 11);
+
+        game.step();
+        assert_eq!(game.count_active_cells(), 21);
     }
 
     #[test]

@@ -1,5 +1,6 @@
 //! Common code
 
+use std::cmp::Ordering;
 use std::convert::TryFrom;
 
 use thiserror::Error;
@@ -34,7 +35,7 @@ impl TryFrom<char> for Cell {
 }
 
 /// Vec3
-#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy, PartialOrd, Ord)]
+#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy)]
 pub struct Vec3 {
     /// X coordinate
     pub x: isize,
@@ -42,6 +43,24 @@ pub struct Vec3 {
     pub y: isize,
     /// Z coordinate
     pub z: isize,
+}
+
+impl PartialOrd for Vec3 {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl Ord for Vec3 {
+    fn cmp(&self, other: &Self) -> Ordering {
+        match self.z.cmp(&other.z) {
+            Ordering::Equal => match self.y.cmp(&other.y) {
+                Ordering::Equal => self.x.cmp(&other.x),
+                o => o,
+            },
+            o => o,
+        }
+    }
 }
 
 impl From<(isize, isize, isize)> for Vec3 {
@@ -57,7 +76,7 @@ impl Into<(isize, isize, isize)> for Vec3 {
 }
 
 /// Vec4
-#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy, PartialOrd, Ord)]
+#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy)]
 pub struct Vec4 {
     /// X coordinate
     pub x: isize,
@@ -67,6 +86,27 @@ pub struct Vec4 {
     pub z: isize,
     /// T coordinate
     pub t: isize,
+}
+
+impl PartialOrd for Vec4 {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl Ord for Vec4 {
+    fn cmp(&self, other: &Self) -> Ordering {
+        match self.t.cmp(&other.t) {
+            Ordering::Equal => match self.z.cmp(&other.z) {
+                Ordering::Equal => match self.y.cmp(&other.y) {
+                    Ordering::Equal => self.x.cmp(&other.x),
+                    o => o,
+                },
+                o => o,
+            },
+            o => o,
+        }
+    }
 }
 
 impl From<(isize, isize, isize, isize)> for Vec4 {
