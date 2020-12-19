@@ -15,7 +15,7 @@ fmt-check:
 	@just opt_fmt_check=true fmt
 
 lint:
-	touch src/lib.rs && cargo clippy --all --all-features --tests {{ if opt_lint_err == "true" { "-- -D warnings" } else { "" } }}
+	touch src/lib.rs && cargo clippy --tests {{ if opt_lint_err == "true" { "-- -D warnings" } else { "" } }}
 
 lint-err:
 	@just opt_lint_err=true lint
@@ -33,7 +33,7 @@ test-day day:
 # Documentation
 
 doc:
-	cargo doc --no-deps {{ if opt_doc_open == "true" { "--open" } else { "" } }} 
+	cargo doc --no-deps {{ if opt_doc_open == "true" { "--open" } else { "" } }}
 
 doc-open:
 	@just opt_doc_open=true doc
