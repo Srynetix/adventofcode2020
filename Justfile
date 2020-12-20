@@ -4,6 +4,7 @@
 opt_fmt_check := "false"
 opt_lint_err := "false"
 opt_doc_open := "false"
+opt_no_capture := "false"
 
 #################
 # Format and lint
@@ -27,7 +28,7 @@ test:
 	cargo test --all
 
 test-day day:
-	cargo test days::day{{ day }}
+	cargo test days::day{{ day }} {{ if opt_no_capture == "true" { "-- --nocapture" } else { "" } }}
 
 ###############
 # Documentation
