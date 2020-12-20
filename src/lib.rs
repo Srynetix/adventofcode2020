@@ -1,7 +1,7 @@
 //! Advent of Code 2020
 
 #![deny(missing_docs)]
-#![warn(clippy::all, clippy::pedantic, clippy::nursery)]
+#![warn(clippy::all, clippy::pedantic)]
 #![allow(
     clippy::module_name_repetitions,
     clippy::pub_enum_variant_names,

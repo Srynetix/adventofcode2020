@@ -52,6 +52,7 @@ fn run_day_wrapper(d: usize) -> Result<()> {
         17 => run_day(d, days::day17::run_ex1, days::day17::run_ex2),
         18 => run_day(d, days::day18::run_ex1, days::day18::run_ex2),
         19 => run_day(d, days::day19::run_ex1, days::day19::run_ex2),
+        20 => run_day(d, days::day20::run_ex1, days::day20::run_ex2),
         d if d <= 25 => Err(eyre!("Day {} not implemented yet.", d)),
         d => Err(eyre!(
             "Day {} is not in Advent of Code day range (1-25).",
