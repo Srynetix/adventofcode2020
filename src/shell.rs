@@ -22,10 +22,12 @@ struct Opt {
     cmd: Command,
 }
 
-fn run_day<F1, F2>(day: usize, ex1: F1, ex2: F2) -> Result<()>
+fn run_day<F1, F2, O1, O2>(day: usize, ex1: F1, ex2: F2) -> Result<()>
 where
-    F1: Fn() -> usize,
-    F2: Fn() -> usize,
+    F1: Fn() -> O1,
+    F2: Fn() -> O2,
+    O1: std::fmt::Display,
+    O2: std::fmt::Display,
 {
     println!("Day {:<2} > [Ex1] {:<16} | [Ex2] {:<16}", day, ex1(), ex2());
     Ok(())
@@ -53,6 +55,7 @@ fn run_day_wrapper(d: usize) -> Result<()> {
         18 => run_day(d, days::day18::run_ex1, days::day18::run_ex2),
         19 => run_day(d, days::day19::run_ex1, days::day19::run_ex2),
         20 => run_day(d, days::day20::run_ex1, days::day20::run_ex2),
+        21 => run_day(d, days::day21::run_ex1, days::day21::run_ex2),
         d if d <= 25 => Err(eyre!("Day {} not implemented yet.", d)),
         d => Err(eyre!(
             "Day {} is not in Advent of Code day range (1-25).",
