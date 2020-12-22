@@ -684,6 +684,17 @@ fn run_recursive_game(
     memory: &mut GameMemory,
     game_number: usize,
 ) -> Player {
+    // Shortcuts for sub-games
+    if game_number > 1 {
+        let max_deck1_card = deck1.0.iter().max().unwrap();
+        let max_deck2_card = deck2.0.iter().max().unwrap();
+
+        if max_deck1_card > max_deck2_card {
+            // Player 1 should win, because only he can win when infinite loop detected
+            return Player(1);
+        }
+    }
+
     // Prepare rounds for game
     memory.rounds.entry(game_number).or_insert(vec![]);
 
