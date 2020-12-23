@@ -68,27 +68,18 @@
 
 #![allow(clippy::cast_precision_loss, clippy::cast_possible_truncation)]
 
-use eyre::{eyre, Result};
-use std::convert::TryInto;
-
 const INPUT_VALUES: &str = include_str!("input.txt");
 
 /// Part one answer.
 pub fn run_ex1() -> usize {
     compute_manhattan_distance(
-        Ship::new()
-            .parse_and_execute_input_commands_no_waypoint(INPUT_VALUES)
-            .expect("Bad input"),
+        Ship::new().parse_and_execute_input_commands_no_waypoint(INPUT_VALUES),
     )
 }
 
 /// Part two answer.
 pub fn run_ex2() -> usize {
-    compute_manhattan_distance(
-        Ship::new()
-            .parse_and_execute_input_commands_waypoint(INPUT_VALUES)
-            .expect("Bad input"),
-    )
+    compute_manhattan_distance(Ship::new().parse_and_execute_input_commands_waypoint(INPUT_VALUES))
 }
 
 /// Compute Manhattan distance from a isize tuple.
@@ -96,10 +87,9 @@ pub fn run_ex2() -> usize {
 /// # Arguments
 ///
 /// * `(x, y)`: isize tuple
+#[allow(clippy::cast_sign_loss)]
 pub fn compute_manhattan_distance((x, y): (isize, isize)) -> usize {
-    (x.abs() + y.abs())
-        .try_into()
-        .expect("two absolutes should work")
+    (x.abs() + y.abs()) as usize
 }
 
 /// Rotate position from `amount`.
@@ -144,16 +134,12 @@ impl CommandDirection {
     /// # Arguments
     ///
     /// * `input` - Input string
-    ///
-    /// # Errors
-    ///
-    /// * Parse errors
-    pub fn from_input(input: &str) -> Result<Self> {
+    pub fn from_input(input: &str) -> Self {
         let mut chars = input.chars();
-        let letter = chars.next().expect("Missing first letter from input");
-        let value = chars.collect::<String>().parse::<isize>()?;
+        let letter = chars.next().unwrap();
+        let value = chars.collect::<String>().parse::<isize>().unwrap();
 
-        Ok(match letter {
+        match letter {
             'F' => Self::Forward(value),
             'N' => Self::North(value),
             'S' => Self::South(value),
@@ -161,8 +147,8 @@ impl CommandDirection {
             'W' => Self::West(value),
             'L' => Self::Left(value),
             'R' => Self::Right(value),
-            l => return Err(eyre!("Unknown direction: {}", l)),
-        })
+            l => panic!("Unknown direction: {}", l),
+        }
     }
 }
 
@@ -291,23 +277,16 @@ impl Ship {
     /// # Arguments
     ///
     /// * `input` - Input string
-    ///
-    /// # Errors
-    ///
-    /// * Parse errors
-    pub fn parse_and_execute_input_commands_no_waypoint(
-        &mut self,
-        input: &str,
-    ) -> Result<(isize, isize)> {
+    pub fn parse_and_execute_input_commands_no_waypoint(&mut self, input: &str) -> (isize, isize) {
         let commands: Vec<_> = input
             .lines()
             .map(|l| CommandDirection::from_input(l.trim()))
-            .collect::<Result<_>>()?;
+            .collect();
         for command in commands {
             self.execute_command_no_waypoint(command);
         }
 
-        Ok((self.x, self.y))
+        (self.x, self.y)
     }
 
     /// Parse and execute input commands with waypoint.
@@ -316,23 +295,16 @@ impl Ship {
     /// # Arguments
     ///
     /// * `input` - Input string
-    ///
-    /// # Errors
-    ///
-    /// * Parse errors
-    pub fn parse_and_execute_input_commands_waypoint(
-        &mut self,
-        input: &str,
-    ) -> Result<(isize, isize)> {
+    pub fn parse_and_execute_input_commands_waypoint(&mut self, input: &str) -> (isize, isize) {
         let commands: Vec<_> = input
             .lines()
             .map(|l| CommandDirection::from_input(l.trim()))
-            .collect::<Result<_>>()?;
+            .collect();
         for command in commands {
             self.execute_command_waypoint(command);
         }
 
-        Ok((self.x, self.y))
+        (self.x, self.y)
     }
 }
 
@@ -352,14 +324,13 @@ mod tests {
     #[test]
     fn test_parse_command() {
         assert_eq!(
-            CommandDirection::from_input("F180").unwrap(),
+            CommandDirection::from_input("F180"),
             CommandDirection::Forward(180)
         );
         assert_eq!(
-            CommandDirection::from_input("L90").unwrap(),
+            CommandDirection::from_input("L90"),
             CommandDirection::Left(90)
         );
-        assert!(CommandDirection::from_input("P12").is_err());
     }
 
     #[test]
@@ -368,23 +339,23 @@ mod tests {
         let lines: Vec<_> = SAMPLE.lines().map(str::trim).collect();
 
         assert_eq!(
-            ship.execute_command_no_waypoint(CommandDirection::from_input(lines[0]).unwrap()),
+            ship.execute_command_no_waypoint(CommandDirection::from_input(lines[0])),
             (10, 0)
         );
         assert_eq!(
-            ship.execute_command_no_waypoint(CommandDirection::from_input(lines[1]).unwrap()),
+            ship.execute_command_no_waypoint(CommandDirection::from_input(lines[1])),
             (10, 3)
         );
         assert_eq!(
-            ship.execute_command_no_waypoint(CommandDirection::from_input(lines[2]).unwrap()),
+            ship.execute_command_no_waypoint(CommandDirection::from_input(lines[2])),
             (17, 3)
         );
         assert_eq!(
-            ship.execute_command_no_waypoint(CommandDirection::from_input(lines[3]).unwrap()),
+            ship.execute_command_no_waypoint(CommandDirection::from_input(lines[3])),
             (17, 3)
         );
         assert_eq!(
-            ship.execute_command_no_waypoint(CommandDirection::from_input(lines[4]).unwrap()),
+            ship.execute_command_no_waypoint(CommandDirection::from_input(lines[4])),
             (17, -8)
         );
     }
@@ -392,9 +363,7 @@ mod tests {
     #[test]
     fn test_sample_execution_no_waypoint() {
         let mut ship = Ship::new();
-        let out = ship
-            .parse_and_execute_input_commands_no_waypoint(SAMPLE)
-            .unwrap();
+        let out = ship.parse_and_execute_input_commands_no_waypoint(SAMPLE);
         assert_eq!(out, (17, -8));
         assert_eq!(compute_manhattan_distance(out), 25);
     }
@@ -414,23 +383,23 @@ mod tests {
         let lines: Vec<_> = SAMPLE.lines().map(str::trim).collect();
 
         assert_eq!(
-            ship.execute_command_waypoint(CommandDirection::from_input(lines[0]).unwrap()),
+            ship.execute_command_waypoint(CommandDirection::from_input(lines[0])),
             (100, 10)
         );
         assert_eq!(
-            ship.execute_command_waypoint(CommandDirection::from_input(lines[1]).unwrap()),
+            ship.execute_command_waypoint(CommandDirection::from_input(lines[1])),
             (100, 10)
         );
         assert_eq!(
-            ship.execute_command_waypoint(CommandDirection::from_input(lines[2]).unwrap()),
+            ship.execute_command_waypoint(CommandDirection::from_input(lines[2])),
             (170, 38)
         );
         assert_eq!(
-            ship.execute_command_waypoint(CommandDirection::from_input(lines[3]).unwrap()),
+            ship.execute_command_waypoint(CommandDirection::from_input(lines[3])),
             (170, 38)
         );
         assert_eq!(
-            ship.execute_command_waypoint(CommandDirection::from_input(lines[4]).unwrap()),
+            ship.execute_command_waypoint(CommandDirection::from_input(lines[4])),
             (214, -72)
         );
     }
@@ -438,9 +407,7 @@ mod tests {
     #[test]
     fn test_sample_execution_waypoint() {
         let mut ship = Ship::new();
-        let out = ship
-            .parse_and_execute_input_commands_waypoint(SAMPLE)
-            .unwrap();
+        let out = ship.parse_and_execute_input_commands_waypoint(SAMPLE);
         assert_eq!(out, (214, -72));
         assert_eq!(compute_manhattan_distance(out), 286);
     }

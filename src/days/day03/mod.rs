@@ -76,7 +76,6 @@
 //!
 //! What do you get if you multiply together the number of trees encountered on each of the listed slopes?
 
-use eyre::{eyre, Result};
 use once_cell::sync::Lazy;
 
 const INPUT_VALUES: &str = include_str!("input.txt");
@@ -114,16 +113,12 @@ impl MapCell {
     /// # Arguments
     ///
     /// * `c` - Character
-    ///
-    /// # Errors
-    ///
-    /// * Unsupported char
-    pub fn try_from_char(c: char) -> Result<Self> {
-        Ok(match c {
+    pub fn from_char(c: char) -> Self {
+        match c {
             '.' => Self::Empty,
             '#' => Self::Tree,
-            o => return Err(eyre!("Bad character {}", o)),
-        })
+            o => panic!("Bad character {}", o),
+        }
     }
 }
 
@@ -177,11 +172,11 @@ impl TobogganMap {
     ///
     /// * `input` - Input text
     pub fn from_input(input: &str) -> Self {
-        let width = input.lines().next().expect("Needs at least one line").len();
+        let width = input.lines().next().unwrap().len();
 
         let data: Vec<MapCell> = input
             .lines()
-            .flat_map(|l| l.chars().filter_map(|c| MapCell::try_from_char(c).ok()))
+            .flat_map(|l| l.chars().map(MapCell::from_char))
             .collect();
 
         Self { data, width }

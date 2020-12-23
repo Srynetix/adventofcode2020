@@ -119,17 +119,13 @@
 //!
 //! What is the earliest timestamp such that all of the listed bus IDs depart at offsets matching their positions in the list?
 
-use log::debug;
-
 const INPUT_VALUES: &str = include_str!("input.txt");
 
 /// Part one answer.
 pub fn run_ex1() -> usize {
     let (target, schedule) = extract_schedules(INPUT_VALUES);
     let scheduler = Scheduler::from_input(schedule);
-    let (wait_time, bus_id) = scheduler
-        .scan_buses_for_target_time(target)
-        .expect("bus not found");
+    let (wait_time, bus_id) = scheduler.scan_buses_for_target_time(target);
 
     wait_time * bus_id
 }
@@ -148,11 +144,8 @@ pub fn run_ex2() -> usize {
 pub fn extract_schedules(input: &str) -> (usize, &str) {
     let mut lines = input.lines();
     (
-        lines
-            .next()
-            .and_then(|x| x.parse::<usize>().ok())
-            .expect("should have a target time"),
-        lines.next().expect("should have a schedule line"),
+        lines.next().and_then(|x| x.parse::<usize>().ok()).unwrap(),
+        lines.next().unwrap(),
     )
 }
 
@@ -188,11 +181,12 @@ impl Scheduler {
     /// # Arguments
     ///
     /// * `target` - Target time
-    pub fn scan_buses_for_target_time(&self, target: usize) -> Option<(usize, usize)> {
+    pub fn scan_buses_for_target_time(&self, target: usize) -> (usize, usize) {
         self.data
             .iter()
             .filter_map(|b| b.and_then(|b| Some((b - target.rem_euclid(b), b))))
             .min()
+            .unwrap()
     }
 
     /// Compute successive departures time.
@@ -213,12 +207,7 @@ impl Scheduler {
                 let offset_a = offsets[idx - 1];
                 let offset_b = offsets[idx];
 
-                let (nt, x, y) = Self::calculate_x(n_a, n_b, offset_a, offset_b, t, last_lcm);
-
-                debug!(
-                    "Calc> {}\n  {} x {} = {} + {}\n  {} x {} = {} + {}\n",
-                    idx, n_a, x, nt, offset_a, n_b, y, nt, offset_b
-                );
+                let (nt, _, _) = Self::calculate_x(n_a, n_b, offset_a, offset_b, t, last_lcm);
 
                 t = nt;
                 last_lcm = nums[0..idx].iter().product();
@@ -303,9 +292,7 @@ mod tests {
     fn test_scan_buses_for_target_time() {
         let (target, schedule_line) = extract_schedules(SAMPLE);
         let scheduler = Scheduler::from_input(schedule_line);
-        let result = scheduler
-            .scan_buses_for_target_time(target)
-            .expect("should find a bus");
+        let result = scheduler.scan_buses_for_target_time(target);
 
         assert_eq!(result, (5, 59));
     }

@@ -98,17 +98,13 @@
 
 use std::collections::HashSet;
 
-use eyre::{eyre, Result};
 use serde::Deserialize;
 
 const INPUT_VALUES: &str = include_str!("input.txt");
 
 /// Part one answer.
 pub fn run_ex1() -> usize {
-    if let StepOutput::LoopFound(e) = Interpreter::new_from_code(INPUT_VALUES)
-        .expect("Bad code")
-        .run()
-    {
+    if let StepOutput::LoopFound(e) = Interpreter::new_from_code(INPUT_VALUES).run() {
         e as usize
     } else {
         panic!("Code should loop");
@@ -117,10 +113,7 @@ pub fn run_ex1() -> usize {
 
 /// Part two answer.
 pub fn run_ex2() -> usize {
-    if let StepOutput::Finished(e) = Interpreter::new_from_code(INPUT_VALUES)
-        .expect("Bad code")
-        .run_repair_mode()
-    {
+    if let StepOutput::Finished(e) = Interpreter::new_from_code(INPUT_VALUES).run_repair_mode() {
         e as usize
     } else {
         panic!("Code should finish");
@@ -176,22 +169,18 @@ impl Parser {
     /// # Arguments
     ///
     /// * `input` - Input string
-    ///
-    /// # Errors
-    ///
-    /// * Parse error
-    pub fn parse_instruction(input: &str) -> Result<Instruction> {
+    pub fn parse_instruction(input: &str) -> Instruction {
         let mut tokens = input.split_whitespace();
         let opcode: OpCode = tokens
             .next()
-            .ok_or_else(|| eyre!("Missing 'opcode' from instruction: {}", input))
-            .and_then(|res| serde_plain::from_str(res).map_err(Into::into))?;
+            .and_then(|res| serde_plain::from_str(res).unwrap())
+            .unwrap();
         let value: isize = tokens
             .next()
-            .ok_or_else(|| eyre!("Missing 'value' from instruction: {}", input))
-            .and_then(|res| serde_plain::from_str(res).map_err(Into::into))?;
+            .and_then(|res| serde_plain::from_str(res).unwrap())
+            .unwrap();
 
-        Ok(Instruction::new(opcode, value))
+        Instruction::new(opcode, value)
     }
 
     /// Parse code.
@@ -199,11 +188,7 @@ impl Parser {
     /// # Arguments
     ///
     /// * `code` - Source code
-    ///
-    /// # Errors
-    ///
-    /// * Parse error
-    pub fn parse_code(code: &str) -> Result<Vec<Instruction>> {
+    pub fn parse_code(code: &str) -> Vec<Instruction> {
         code.lines().map(Self::parse_instruction).collect()
     }
 }
@@ -235,17 +220,13 @@ impl Interpreter {
     /// # Arguments
     ///
     /// * `code` - Source code
-    ///
-    /// # Errors
-    ///
-    /// * Parse error
-    pub fn new_from_code(code: &str) -> Result<Self> {
-        Ok(Self {
-            instructions: Parser::parse_code(code)?,
+    pub fn new_from_code(code: &str) -> Self {
+        Self {
+            instructions: Parser::parse_code(code),
             accumulator: 0,
             cursor: 0,
             seen_instructions: HashSet::new(),
-        })
+        }
     }
 
     /// Reset state, conserving current instructions.
@@ -353,24 +334,23 @@ mod tests {
     #[test]
     fn test_parse_instruction() {
         assert_eq!(
-            Parser::parse_instruction("jmp +4").unwrap(),
+            Parser::parse_instruction("jmp +4"),
             Instruction::new(OpCode::Jmp, 4)
         );
         assert_eq!(
-            Parser::parse_instruction("jmp -4").unwrap(),
+            Parser::parse_instruction("jmp -4"),
             Instruction::new(OpCode::Jmp, -4)
         );
         assert_eq!(
-            Parser::parse_instruction("nop +0").unwrap(),
+            Parser::parse_instruction("nop +0"),
             Instruction::new(OpCode::Nop, 0)
         );
-        assert!(Parser::parse_instruction("toto").is_err());
     }
 
     #[test]
     fn test_parse_code() {
         assert_eq!(
-            Parser::parse_code("jmp +4\nnop +0").unwrap(),
+            Parser::parse_code("jmp +4\nnop +0"),
             vec![
                 Instruction::new(OpCode::Jmp, 4),
                 Instruction::new(OpCode::Nop, 0)
@@ -381,7 +361,7 @@ mod tests {
     #[test]
     fn test_interpreter_run() {
         assert_eq!(
-            Interpreter::new_from_code(CODE_SAMPLE).unwrap().run(),
+            Interpreter::new_from_code(CODE_SAMPLE).run(),
             StepOutput::LoopFound(5)
         );
     }
@@ -389,9 +369,7 @@ mod tests {
     #[test]
     fn test_interpreter_run_repair_mode() {
         assert_eq!(
-            Interpreter::new_from_code(CODE_SAMPLE)
-                .unwrap()
-                .run_repair_mode(),
+            Interpreter::new_from_code(CODE_SAMPLE).run_repair_mode(),
             StepOutput::Finished(8)
         );
     }
@@ -399,7 +377,7 @@ mod tests {
     #[test]
     fn test_run_ex1() {
         assert_eq!(
-            Interpreter::new_from_code(INPUT_VALUES).unwrap().run(),
+            Interpreter::new_from_code(INPUT_VALUES).run(),
             StepOutput::LoopFound(EX1_OUTPUT)
         );
     }
@@ -407,9 +385,7 @@ mod tests {
     #[test]
     fn test_run_ex2() {
         assert_eq!(
-            Interpreter::new_from_code(INPUT_VALUES)
-                .unwrap()
-                .run_repair_mode(),
+            Interpreter::new_from_code(INPUT_VALUES).run_repair_mode(),
             StepOutput::Finished(EX2_OUTPUT)
         );
     }

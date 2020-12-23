@@ -38,15 +38,12 @@
 //!
 //! How many passwords are valid according to the new interpretation of the policies?
 
-use eyre::{eyre, Result};
 use once_cell::sync::Lazy;
 use regex::Regex;
 
 const INPUT_VALUES: &str = include_str!("input.txt");
-static PASSWORD_RGX: Lazy<Regex> = Lazy::new(|| {
-    Regex::new(r"(?P<min>\d+)-(?P<max>\d+) (?P<char>\w): (?P<password>\w+)")
-        .expect("Bad regex format")
-});
+static PASSWORD_RGX: Lazy<Regex> =
+    Lazy::new(|| Regex::new(r"(?P<min>\d+)-(?P<max>\d+) (?P<char>\w): (?P<password>\w+)").unwrap());
 
 /// Part one answer.
 pub fn run_ex1() -> usize {
@@ -84,11 +81,11 @@ pub fn validate_multiple_passwords_with_position(entries: &str) -> usize {
 /// * `func` - Function
 pub fn validate_multiple_passwords_with_fn<F>(entries: &str, func: F) -> usize
 where
-    F: Fn(&str) -> Result<bool>,
+    F: Fn(&str) -> bool,
 {
     entries
         .lines()
-        .filter_map(|s| func(s).map(|v| v as usize).ok())
+        .filter_map(|s| if func(s) { Some(true as usize) } else { None })
         .sum::<usize>()
 }
 
@@ -97,14 +94,10 @@ where
 /// # Arguments
 ///
 /// * `entry` - Password
-///
-/// # Errors
-///
-/// * Bad password entry
-pub fn validate_password_with_count(entry: &str) -> Result<bool> {
-    let (min_v, max_v, char_v, password) = parse_password_entry(entry)?;
+pub fn validate_password_with_count(entry: &str) -> bool {
+    let (min_v, max_v, char_v, password) = parse_password_entry(entry);
     let count = password.chars().filter(|c| *c == char_v).count();
-    Ok(count <= max_v && count >= min_v)
+    count <= max_v && count >= min_v
 }
 
 /// Validate password with character position.
@@ -112,24 +105,20 @@ pub fn validate_password_with_count(entry: &str) -> Result<bool> {
 /// # Arguments
 ///
 /// * `entry` - Password
-///
-/// # Errors
-///
-/// * Bad password entry
-pub fn validate_password_with_position(entry: &str) -> Result<bool> {
-    let (min_v, max_v, char_v, password) = parse_password_entry(entry)?;
+pub fn validate_password_with_position(entry: &str) -> bool {
+    let (min_v, max_v, char_v, password) = parse_password_entry(entry);
     let bytes = password.as_bytes();
     let char_b = char_v as u8;
     let char_min = bytes[min_v - 1];
     let char_max = bytes[max_v - 1];
 
-    Ok(if char_min == char_b && char_max == char_b {
+    if char_min == char_b && char_max == char_b {
         false
     } else if char_min == char_b {
         true
     } else {
         char_max == char_b
-    })
+    }
 }
 
 /// Parse password entry.
@@ -137,36 +126,24 @@ pub fn validate_password_with_position(entry: &str) -> Result<bool> {
 /// # Arguments
 ///
 /// * `entry` - Password
-///
-/// # Errors
-///
-/// * Bad password entry
-pub fn parse_password_entry(entry: &str) -> Result<(usize, usize, char, &str)> {
-    if let Some(captures) = PASSWORD_RGX.captures(entry) {
-        return Ok((
-            captures
-                .name("min")
-                .ok_or_else(|| eyre!("Missing 'min' value"))?
-                .as_str()
-                .parse()?,
-            captures
-                .name("max")
-                .ok_or_else(|| eyre!("Missing 'max' value"))?
-                .as_str()
-                .parse()?,
-            captures
-                .name("char")
-                .ok_or_else(|| eyre!("Missing 'char' value"))?
-                .as_str()
-                .parse()?,
-            captures
-                .name("password")
-                .ok_or_else(|| eyre!("Missing 'password' value"))?
-                .as_str(),
-        ));
-    }
+pub fn parse_password_entry(entry: &str) -> (usize, usize, char, &str) {
+    let captures = PASSWORD_RGX.captures(entry).unwrap();
 
-    Err(eyre!("Entry '{}' does not match regex", entry))
+    (
+        captures
+            .name("min")
+            .map(|x| x.as_str().parse().unwrap())
+            .unwrap(),
+        captures
+            .name("max")
+            .map(|x| x.as_str().parse().unwrap())
+            .unwrap(),
+        captures
+            .name("char")
+            .map(|x| x.as_str().parse().unwrap())
+            .unwrap(),
+        captures.name("password").map(|x| x.as_str()).unwrap(),
+    )
 }
 
 #[cfg(test)]
@@ -179,32 +156,26 @@ mod tests {
     #[test]
     fn test_parse_password_entry() {
         assert_eq!(
-            parse_password_entry("1-3 c: tototutu").unwrap(),
+            parse_password_entry("1-3 c: tototutu"),
             (1, 3, 'c', "tototutu")
         );
         assert_eq!(
-            parse_password_entry("10-30 z: zzzzzz").unwrap(),
+            parse_password_entry("10-30 z: zzzzzz"),
             (10, 30, 'z', "zzzzzz")
         );
-
-        // Errors
-        assert!(parse_password_entry("10-30 zz: zzzzzz").is_err());
-        assert!(parse_password_entry("10- z: zzzzzz").is_err());
-        assert!(parse_password_entry("-1 z = zzzzzz").is_err());
-        assert!(parse_password_entry("-1 zzzzzzz").is_err());
     }
 
     #[test]
     fn test_validate_password_with_count() {
-        assert!(validate_password_with_count("1-3 c: ceci").unwrap());
-        assert!(!validate_password_with_count("1-3 c: cccc").unwrap());
+        assert!(validate_password_with_count("1-3 c: ceci"));
+        assert!(!validate_password_with_count("1-3 c: cccc"));
     }
 
     #[test]
     fn test_validate_password_with_position() {
-        assert!(validate_password_with_position("1-3 c: cabc").unwrap());
-        assert!(!validate_password_with_position("1-3 c: cacc").unwrap());
-        assert!(validate_password_with_position("1-3 c: aacc").unwrap());
+        assert!(validate_password_with_position("1-3 c: cabc"));
+        assert!(!validate_password_with_position("1-3 c: cacc"));
+        assert!(validate_password_with_position("1-3 c: aacc"));
     }
 
     #[test]

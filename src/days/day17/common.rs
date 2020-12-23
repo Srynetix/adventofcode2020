@@ -1,17 +1,6 @@
 //! Common code
 
 use std::cmp::Ordering;
-use std::convert::TryFrom;
-
-use thiserror::Error;
-
-/// Day error.
-#[derive(Debug, Error)]
-pub enum DayError {
-    /// Parse error.
-    #[error("Parse error: {0}")]
-    ParseError(String),
-}
 
 /// Cell
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
@@ -22,15 +11,13 @@ pub enum Cell {
     Active,
 }
 
-impl TryFrom<char> for Cell {
-    type Error = DayError;
-
-    fn try_from(value: char) -> Result<Self, Self::Error> {
-        Ok(match value {
+impl From<char> for Cell {
+    fn from(value: char) -> Self {
+        match value {
             '#' => Self::Active,
             '.' => Self::Inactive,
-            c => return Err(DayError::ParseError(format!("Unknown cell char: {}", c))),
-        })
+            c => panic!("Unknown cell char: {}", c),
+        }
     }
 }
 

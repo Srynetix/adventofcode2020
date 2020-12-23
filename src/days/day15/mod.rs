@@ -55,25 +55,17 @@
 
 use std::collections::VecDeque;
 
-use eyre::{eyre, Result};
-
 const INPUT_VALUES: &str = include_str!("input.txt");
 const INITIAL_BUFFER_SIZE: usize = 1_048_576; // 1 MB
 
 /// Part one answer.
 pub fn run_ex1() -> usize {
-    MemoryGame::from_str_input(INPUT_VALUES)
-        .expect("Bad input values")
-        .run_steps(2020)
-        .expect("Should work")
+    MemoryGame::from_str_input(INPUT_VALUES).run_steps(2020)
 }
 
 /// Part two answer.
 pub fn run_ex2() -> usize {
-    MemoryGame::from_str_input(INPUT_VALUES)
-        .expect("Bad input values")
-        .run_steps(30_000_000)
-        .expect("Should work")
+    MemoryGame::from_str_input(INPUT_VALUES).run_steps(30_000_000)
 }
 
 /// Memory game
@@ -89,17 +81,13 @@ impl MemoryGame {
     /// # Arguments
     ///
     /// * `input` - Input string
-    ///
-    /// # Errors
-    ///
-    /// * Parse error
-    pub fn from_str_input(input: &str) -> Result<Self> {
-        let input: Result<_> = input
+    pub fn from_str_input(input: &str) -> Self {
+        let input: Vec<_> = input
             .split(',')
-            .map(|x| x.parse::<usize>().map_err(Into::into))
+            .map(|x| x.parse::<usize>().unwrap())
             .collect();
 
-        Ok(Self::from_vec(input?))
+        Self::from_vec(input)
     }
 
     /// Creates new game from vec.
@@ -116,11 +104,7 @@ impl MemoryGame {
     }
 
     /// Step.
-    ///
-    /// # Errors
-    ///
-    /// * If input is empty
-    pub fn step(&mut self) -> Result<usize> {
+    pub fn step(&mut self) -> usize {
         let i = self.input.pop_front().unwrap_or(0);
 
         if i >= self.memory.len() {
@@ -134,27 +118,22 @@ impl MemoryGame {
 
         self.memory[i] = self.turn;
         self.turn += 1;
-        Ok(i)
+        i
     }
 
     /// Run for `n` steps.
-    ///
-    /// # Errors
-    ///
-    /// * If input is empty
-    /// * If n is 0
-    pub fn run_steps(&mut self, n: usize) -> Result<usize> {
+    pub fn run_steps(&mut self, n: usize) -> usize {
         let mut result = 0;
 
         if n == 0 {
-            return Err(eyre!("You need at least one step."));
+            panic!("You need at least one step.");
         }
 
         for _ in 0..n {
-            result = self.step()?;
+            result = self.step();
         }
 
-        Ok(result)
+        result
     }
 }
 
@@ -168,50 +147,32 @@ mod tests {
     #[test]
     fn test_first_sample_steps() {
         let mut game = MemoryGame::from_vec(vec![0, 3, 6]);
-        assert_eq!(game.step().unwrap(), 0);
-        assert_eq!(game.step().unwrap(), 3);
-        assert_eq!(game.step().unwrap(), 6);
-        assert_eq!(game.step().unwrap(), 0);
-        assert_eq!(game.step().unwrap(), 3);
-        assert_eq!(game.step().unwrap(), 3);
-        assert_eq!(game.step().unwrap(), 1);
-        assert_eq!(game.step().unwrap(), 0);
-        assert_eq!(game.step().unwrap(), 4);
-        assert_eq!(game.step().unwrap(), 0);
+        assert_eq!(game.step(), 0);
+        assert_eq!(game.step(), 3);
+        assert_eq!(game.step(), 6);
+        assert_eq!(game.step(), 0);
+        assert_eq!(game.step(), 3);
+        assert_eq!(game.step(), 3);
+        assert_eq!(game.step(), 1);
+        assert_eq!(game.step(), 0);
+        assert_eq!(game.step(), 4);
+        assert_eq!(game.step(), 0);
     }
 
     #[test]
     fn test_first_sample_run() {
         let mut game = MemoryGame::from_vec(vec![0, 3, 6]);
-        assert_eq!(game.run_steps(2020).unwrap(), 436);
+        assert_eq!(game.run_steps(2020), 436);
     }
 
     #[test]
     fn test_more_samples() {
-        assert_eq!(
-            MemoryGame::from_vec(vec![1, 3, 2]).run_steps(2020).unwrap(),
-            1
-        );
-        assert_eq!(
-            MemoryGame::from_vec(vec![2, 1, 3]).run_steps(2020).unwrap(),
-            10
-        );
-        assert_eq!(
-            MemoryGame::from_vec(vec![1, 2, 3]).run_steps(2020).unwrap(),
-            27
-        );
-        assert_eq!(
-            MemoryGame::from_vec(vec![2, 3, 1]).run_steps(2020).unwrap(),
-            78
-        );
-        assert_eq!(
-            MemoryGame::from_vec(vec![3, 2, 1]).run_steps(2020).unwrap(),
-            438
-        );
-        assert_eq!(
-            MemoryGame::from_vec(vec![3, 1, 2]).run_steps(2020).unwrap(),
-            1836
-        );
+        assert_eq!(MemoryGame::from_vec(vec![1, 3, 2]).run_steps(2020), 1);
+        assert_eq!(MemoryGame::from_vec(vec![2, 1, 3]).run_steps(2020), 10);
+        assert_eq!(MemoryGame::from_vec(vec![1, 2, 3]).run_steps(2020), 27);
+        assert_eq!(MemoryGame::from_vec(vec![2, 3, 1]).run_steps(2020), 78);
+        assert_eq!(MemoryGame::from_vec(vec![3, 2, 1]).run_steps(2020), 438);
+        assert_eq!(MemoryGame::from_vec(vec![3, 1, 2]).run_steps(2020), 1836);
     }
 
     #[test]

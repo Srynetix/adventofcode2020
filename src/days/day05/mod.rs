@@ -50,23 +50,20 @@
 //!
 //! What is the ID of your seat?
 
-use eyre::Result;
-
 const INPUT_VALUES: &str = include_str!("input.txt");
 
 /// Part one answer.
 pub fn run_ex1() -> usize {
     BoardingPass::from_entries(INPUT_VALUES)
-        .expect("should work")
         .iter()
         .map(BoardingPass::get_seat_id)
         .max()
-        .expect("Should contain at least one value")
+        .unwrap()
 }
 
 /// Part two answer.
 pub fn run_ex2() -> usize {
-    let passes = BoardingPass::from_entries(INPUT_VALUES).expect("should work");
+    let passes = BoardingPass::from_entries(INPUT_VALUES);
 
     let mut seats: Vec<usize> = passes.iter().map(BoardingPass::get_seat_id).collect();
     seats.sort_unstable();
@@ -96,11 +93,7 @@ impl BoardingPass {
     /// # Arguments
     ///
     /// * `entries` - Boarding entries
-    ///
-    /// # Errors
-    ///
-    /// * Parse error
-    pub fn from_entries(entries: &str) -> Result<Vec<Self>> {
+    pub fn from_entries(entries: &str) -> Vec<Self> {
         entries.lines().map(Self::from_entry).collect()
     }
 
@@ -109,11 +102,7 @@ impl BoardingPass {
     /// # Arguments
     ///
     /// * `entry` - Boarding entry
-    ///
-    /// # Errors
-    //
-    /// * Parse error
-    pub fn from_entry(entry: &str) -> Result<Self> {
+    pub fn from_entry(entry: &str) -> Self {
         // Convert row as binary to decimal (7 first letters)
         let row = usize::from_str_radix(
             &entry
@@ -126,7 +115,8 @@ impl BoardingPass {
                 })
                 .collect::<String>(),
             2,
-        )?;
+        )
+        .unwrap();
 
         // Convert column as binary to decimal (3 last letters)
         let column = usize::from_str_radix(
@@ -141,9 +131,10 @@ impl BoardingPass {
                 })
                 .collect::<String>(),
             2,
-        )?;
+        )
+        .unwrap();
 
-        Ok(Self { row, column })
+        Self { row, column }
     }
 
     /// Get seat ID from boarding pass.
@@ -162,19 +153,19 @@ mod tests {
     #[test]
     fn test_from_entry() {
         assert_eq!(
-            BoardingPass::from_entry("FBFBBFFRLR").unwrap(),
+            BoardingPass::from_entry("FBFBBFFRLR"),
             BoardingPass { row: 44, column: 5 }
         );
         assert_eq!(
-            BoardingPass::from_entry("BFFFBBFRRR").unwrap(),
+            BoardingPass::from_entry("BFFFBBFRRR"),
             BoardingPass { row: 70, column: 7 }
         );
         assert_eq!(
-            BoardingPass::from_entry("FFFBBBFRRR").unwrap(),
+            BoardingPass::from_entry("FFFBBBFRRR"),
             BoardingPass { row: 14, column: 7 }
         );
         assert_eq!(
-            BoardingPass::from_entry("BBFFBBFRLL").unwrap(),
+            BoardingPass::from_entry("BBFFBBFRLL"),
             BoardingPass {
                 row: 102,
                 column: 4

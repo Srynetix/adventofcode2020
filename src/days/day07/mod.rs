@@ -66,33 +66,30 @@
 
 use std::collections::HashMap;
 
-use eyre::{eyre, Result};
 use once_cell::sync::Lazy;
 use regex::Regex;
 
 const INPUT_VALUES: &str = include_str!("input.txt");
 const INPUT_COLOR_NAME: &str = "shiny gold";
 
-static MAIN_RULE_RGX: Lazy<Regex> = Lazy::new(|| {
-    Regex::new(r"^(?P<color>\w+ \w+) bags contain (?P<rules>.*)\.$").expect("Bad main rule regex")
-});
+static MAIN_RULE_RGX: Lazy<Regex> =
+    Lazy::new(|| Regex::new(r"^(?P<color>\w+ \w+) bags contain (?P<rules>.*)\.$").unwrap());
 
-static SIMPLE_RULE_RGX: Lazy<Regex> = Lazy::new(|| {
-    Regex::new(r"^(?P<amount>\d+) (?P<color>\w+ \w+) bags?").expect("Bad simple rule regex")
-});
+static SIMPLE_RULE_RGX: Lazy<Regex> =
+    Lazy::new(|| Regex::new(r"^(?P<amount>\d+) (?P<color>\w+ \w+) bags?").unwrap());
 
 const NO_OTHER_BAGS_STR: &str = "no other bags";
 
 /// Part one answer.
 pub fn run_ex1() -> usize {
-    let system = BagSystem::new_from_rules(INPUT_VALUES).expect("should work");
+    let system = BagSystem::new_from_rules(INPUT_VALUES);
     let color: BagColor = INPUT_COLOR_NAME.into();
     system.find_container_colors_for_color(&color).len()
 }
 
 /// Part two answer.
 pub fn run_ex2() -> usize {
-    let system = BagSystem::new_from_rules(INPUT_VALUES).expect("should work");
+    let system = BagSystem::new_from_rules(INPUT_VALUES);
     let color: BagColor = INPUT_COLOR_NAME.into();
     system.count_needed_bags_for_color(&color)
 }
@@ -147,22 +144,10 @@ impl BagSystem {
     /// # Arguments
     ///
     /// * `input` - Input string
-    ///
-    /// # Errors
-    ///
-    /// * Match errors
-    pub fn parse_rule(&mut self, input: &str) -> Result<()> {
-        let capture = MAIN_RULE_RGX
-            .captures(input.trim())
-            .ok_or_else(|| eyre!("Bad main rule format"))?;
-        let color = capture
-            .name("color")
-            .expect("'color' match should work")
-            .as_str();
-        let rules = capture
-            .name("rules")
-            .expect("'rules' match should work")
-            .as_str();
+    pub fn parse_rule(&mut self, input: &str) {
+        let capture = MAIN_RULE_RGX.captures(input.trim()).unwrap();
+        let color = capture.name("color").map(|x| x.as_str()).unwrap();
+        let rules = capture.name("rules").map(|x| x.as_str()).unwrap();
 
         let mut relations: Vec<BagRelation> = Vec::new();
         for rule in rules.split(", ") {
@@ -170,26 +155,16 @@ impl BagSystem {
                 continue;
             }
 
-            let rule_capture = SIMPLE_RULE_RGX
-                .captures(rule.trim())
-                .ok_or_else(|| eyre!("Bad simple rule format"))?;
-            let rule_amount = rule_capture
-                .name("amount")
-                .expect("'amount' match should work")
-                .as_str();
-            let rule_color = rule_capture
-                .name("color")
-                .expect("'color' match should work")
-                .as_str();
+            let rule_capture = SIMPLE_RULE_RGX.captures(rule.trim()).unwrap();
+            let rule_amount = rule_capture.name("amount").map(|x| x.as_str()).unwrap();
+            let rule_color = rule_capture.name("color").map(|x| x.as_str()).unwrap();
             relations.push(BagRelation::new(
                 BagColor::new(rule_color),
-                rule_amount.parse()?,
+                rule_amount.parse().unwrap(),
             ));
         }
 
         self.0.insert(BagColor::new(color), relations);
-
-        Ok(())
     }
 
     /// Parse multiple rules.
@@ -197,28 +172,18 @@ impl BagSystem {
     /// # Arguments
     ///
     /// * `entries` - Input string
-    ///
-    /// # Errors
-    ///
-    /// * Match errors
-    pub fn parse_rules(&mut self, entries: &str) -> Result<()> {
+    pub fn parse_rules(&mut self, entries: &str) {
         for entry in entries.lines() {
-            self.parse_rule(entry)?;
+            self.parse_rule(entry);
         }
-
-        Ok(())
     }
 
     /// Create new bag system.
-    ///
-    /// # Errors
-    ///
-    /// * Match errors
-    pub fn new_from_rules(rules: &str) -> Result<Self> {
+    pub fn new_from_rules(rules: &str) -> Self {
         let mut instance = Self(HashMap::new());
 
-        instance.parse_rules(rules)?;
-        Ok(instance)
+        instance.parse_rules(rules);
+        instance
     }
 
     /// Get direct links for a known bag color.
@@ -296,7 +261,7 @@ impl BagSystem {
     ///
     /// * `color` - Known color
     pub fn count_inner_bags_for_color(&self, inner_color: &BagColor) -> usize {
-        let relations = self.0.get(inner_color).expect("color should exist");
+        let relations = self.0.get(inner_color).unwrap();
         let sum = relations
             .iter()
             .map(|x| x.amount * self.count_inner_bags_for_color(&x.color))
@@ -333,12 +298,12 @@ mod tests {
 
     #[test]
     fn test_parse_rules() {
-        BagSystem::new_from_rules(EXAMPLE_FIXTURE_EX1).expect("should work");
+        BagSystem::new_from_rules(EXAMPLE_FIXTURE_EX1);
     }
 
     #[test]
     fn test_find_container_bag_colors() {
-        let system = BagSystem::new_from_rules(EXAMPLE_FIXTURE_EX1).expect("should work");
+        let system = BagSystem::new_from_rules(EXAMPLE_FIXTURE_EX1);
         let color: BagColor = "shiny gold".into();
         let mut colors = system.find_container_colors_for_color(&color);
         colors.sort();
@@ -353,7 +318,7 @@ mod tests {
 
     #[test]
     fn test_count_needed_bags_for_color() {
-        let system = BagSystem::new_from_rules(EXAMPLE_FIXTURE_EX2).expect("should work");
+        let system = BagSystem::new_from_rules(EXAMPLE_FIXTURE_EX2);
         let color: BagColor = "shiny gold".into();
         assert_eq!(system.count_needed_bags_for_color(&color), 126);
     }

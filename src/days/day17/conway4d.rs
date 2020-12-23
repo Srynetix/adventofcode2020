@@ -1,9 +1,8 @@
 //! Conway 4D
 
 use std::collections::HashSet;
-use std::convert::{TryFrom, TryInto};
 
-use super::common::{Cell, DayError, Vec4};
+use super::common::{Cell, Vec4};
 
 /// Game of Life in an 'infinite' 4D grid
 #[derive(Debug, Default)]
@@ -175,11 +174,9 @@ impl Conway4D {
     }
 }
 
-impl TryFrom<&str> for Conway4D {
-    type Error = DayError;
-
+impl From<&str> for Conway4D {
     #[allow(clippy::cast_possible_wrap)]
-    fn try_from(value: &str) -> Result<Self, Self::Error> {
+    fn from(value: &str) -> Self {
         let mut game = Self::new();
 
         game.set_cell_states(
@@ -187,20 +184,17 @@ impl TryFrom<&str> for Conway4D {
                 .trim()
                 .lines()
                 .enumerate()
-                .map(|(y, l)| {
-                    Ok(l.trim()
+                .flat_map(|(y, l)| {
+                    l.trim()
                         .chars()
                         .enumerate()
-                        .map(|(x, c)| Ok(((x as isize, y as isize, 0, 0).into(), c.try_into()?)))
-                        .collect::<Result<Vec<(Vec4, Cell)>, _>>()?)
+                        .map(|(x, c)| ((x as isize, y as isize, 0, 0).into(), c.into()))
+                        .collect::<Vec<(Vec4, Cell)>>()
                 })
-                .collect::<Result<Vec<_>, _>>()?
-                .into_iter()
-                .flatten()
                 .collect(),
         );
 
-        Ok(game)
+        game
     }
 }
 
@@ -216,7 +210,7 @@ mod tests {
 
     #[test]
     fn test_set_cell_states_from_str() {
-        let game = Conway4D::try_from(SAMPLE).unwrap();
+        let game = Conway4D::from(SAMPLE);
         assert_eq!(
             game.get_cell_at_position((0, 0, 0, 0).into()),
             Cell::Inactive
@@ -250,7 +244,7 @@ mod tests {
 
     #[test]
     fn test_run_6_steps() {
-        let mut game = Conway4D::try_from(SAMPLE).unwrap();
+        let mut game = Conway4D::from(SAMPLE);
         game.run_steps(6);
         assert_eq!(game.count_active_cells(), 848);
     }
