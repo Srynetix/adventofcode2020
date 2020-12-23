@@ -45,7 +45,7 @@ use once_cell::sync::Lazy;
 use regex::Regex;
 
 static RGX_DISH: Lazy<Regex> =
-    Lazy::new(|| Regex::new(r#"^(.*?)(?: \(contains (.*?)\))?$"#).expect("error in regex syntax"));
+    Lazy::new(|| Regex::new(r#"^(.*?)(?: \(contains (.*?)\))?$"#).unwrap());
 
 const INPUT_VALUES: &str = include_str!("input.txt");
 
@@ -116,9 +116,7 @@ pub fn parse_allergens(input: &str) -> HashSet<Allergen> {
 ///
 /// * `input` - Input string
 pub fn parse_dish(input: &str) -> Dish {
-    let captures = RGX_DISH
-        .captures(input.trim())
-        .expect("error while capturing with regex");
+    let captures = RGX_DISH.captures(input.trim()).unwrap();
     let ingredients = parse_ingredients(captures.get(1).unwrap().as_str());
     let allergens = parse_allergens(captures.get(2).map(|x| x.as_str()).unwrap_or_default());
 
@@ -171,9 +169,7 @@ pub fn resolve_allergen_map(mut counts: AllergenCounts) -> AllergenMap {
         let mut allergen_to_remove = None;
 
         for a in &remaining_allergens {
-            if let Some(i) = get_single_max_value_from_ingredient_counts(
-                counts.get(a).expect("unknown allergen"),
-            ) {
+            if let Some(i) = get_single_max_value_from_ingredient_counts(counts.get(a).unwrap()) {
                 output.insert(*a, i);
                 allergen_to_remove = Some((*a, i));
                 break;

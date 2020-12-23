@@ -194,7 +194,7 @@ impl JoltAnalyzer {
 
     /// Get device builtin adapter jolts.
     pub fn get_builtin_adapter_jolts(data: &[usize]) -> usize {
-        data.iter().max().expect("'data' should not be empty") + 3
+        data.iter().max().unwrap() + 3
     }
 
     /// Determine jolt chain.
@@ -217,7 +217,7 @@ impl JoltAnalyzer {
 
     /// Count adapter permutations.
     pub fn count_adapter_permutations(&self) -> usize {
-        let max_value = self.data.last().expect("'data' should not be empty");
+        let max_value = self.data.last().unwrap();
         let data_set: HashSet<usize> = HashSet::from_iter(self.data.iter().copied());
         let mut memory: HashMap<usize, usize> = HashMap::new();
         Self::count_inner_adapter_permutations(&data_set, 0, *max_value, &mut memory)

@@ -385,7 +385,6 @@
 //!
 //! Defend your honor as Raft Captain by playing the small crab in a game of Recursive Combat using the same two decks as before. What is the winning player's score?
 
-use log::info;
 use std::collections::HashMap;
 
 /// Part one answer.
@@ -580,14 +579,7 @@ pub fn recursive_game_step(
     deck2: &mut Deck,
     memory: &mut GameMemory,
     game_number: usize,
-    round_number: usize,
 ) -> GameStepResult {
-    let padding = " ".repeat(game_number);
-    let round_info = format!(
-        "{}[Game #{} - Round #{}]",
-        padding, game_number, round_number
-    );
-
     // Check if round is already present, based on deck contents
     if !memory.rounds.is_empty() {
         let decks_set = (deck1.clone(), deck2.clone());
@@ -597,10 +589,6 @@ pub fn recursive_game_step(
             .unwrap()
             .contains(&decks_set)
         {
-            info!(
-                "{} Infinite loop detected, game won by Player 1.",
-                round_info
-            );
             return GameStepResult::Finished(Player(1));
         }
     }
@@ -613,28 +601,18 @@ pub fn recursive_game_step(
         .push((deck1.clone(), deck2.clone()));
 
     if deck1.is_empty() {
-        info!("{} Player 2 just won game.", round_info);
         GameStepResult::Finished(Player(2))
     } else if deck2.is_empty() {
-        info!("{} Player 1 just won game.", round_info);
         GameStepResult::Finished(Player(1))
     } else {
-        info!("{} Deck 1 {:?} / Deck 2 {:?}", round_info, deck1, deck2);
-
         let card1 = deck1.take_card().unwrap();
         let card2 = deck2.take_card().unwrap();
-        info!("{} Taking cards {:?} / {:?}", round_info, card1, card2);
 
         // Check for recursion
         let winning_player = {
             if deck1.len() >= card1.0 && deck2.len() >= card2.0 {
                 let mut deck1_clone = deck1.clone_until(card1.0);
                 let mut deck2_clone = deck2.clone_until(card2.0);
-
-                info!(
-                    "{} Entering recursion with decks {:?} and {:?}",
-                    round_info, deck1_clone, deck2_clone
-                );
                 run_recursive_game(&mut deck1_clone, &mut deck2_clone, memory, game_number + 1)
             } else {
                 // Normal game
@@ -648,18 +626,10 @@ pub fn recursive_game_step(
 
         match winning_player {
             Player(1) => {
-                info!(
-                    "{} Player 1 won the round, {:?} > {:?}",
-                    round_info, card1, card2
-                );
                 deck1.add_card(card1);
                 deck1.add_card(card2);
             }
             Player(2) => {
-                info!(
-                    "{} Player 2 won the round, {:?} > {:?}",
-                    round_info, card2, card1
-                );
                 deck2.add_card(card2);
                 deck2.add_card(card1);
             }
@@ -698,18 +668,14 @@ fn run_recursive_game(
     // Prepare rounds for game
     memory.rounds.entry(game_number).or_insert(vec![]);
 
-    let mut round_id = 1;
-
     loop {
         if let GameStepResult::Finished(player) =
-            recursive_game_step(deck1, deck2, memory, game_number, round_id)
+            recursive_game_step(deck1, deck2, memory, game_number)
         {
             // Remove unneeded memory
             memory.rounds.remove(&game_number);
             return player;
         }
-
-        round_id += 1;
     }
 }
 

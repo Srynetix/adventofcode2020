@@ -1,9 +1,8 @@
 //! Conway 3D
 
 use std::collections::HashSet;
-use std::convert::{TryFrom, TryInto};
 
-use super::common::{Cell, DayError, Vec3};
+use super::common::{Cell, Vec3};
 
 /// Game of Life in an 'infinite' 3D grid
 #[derive(Debug, Default)]
@@ -161,11 +160,9 @@ impl Conway3D {
     }
 }
 
-impl TryFrom<&str> for Conway3D {
-    type Error = DayError;
-
+impl From<&str> for Conway3D {
     #[allow(clippy::cast_possible_wrap)]
-    fn try_from(value: &str) -> Result<Self, Self::Error> {
+    fn from(value: &str) -> Self {
         let mut game = Self::new();
 
         game.set_cell_states(
@@ -173,20 +170,17 @@ impl TryFrom<&str> for Conway3D {
                 .trim()
                 .lines()
                 .enumerate()
-                .map(|(y, l)| {
-                    Ok(l.trim()
+                .flat_map(|(y, l)| {
+                    l.trim()
                         .chars()
                         .enumerate()
-                        .map(|(x, c)| Ok(((x as isize, y as isize, 0).into(), c.try_into()?)))
-                        .collect::<Result<Vec<(Vec3, Cell)>, _>>()?)
+                        .map(|(x, c)| ((x as isize, y as isize, 0).into(), c.into()))
+                        .collect::<Vec<(Vec3, Cell)>>()
                 })
-                .collect::<Result<Vec<_>, _>>()?
-                .into_iter()
-                .flatten()
                 .collect(),
         );
 
-        Ok(game)
+        game
     }
 }
 
@@ -202,7 +196,7 @@ mod tests {
 
     #[test]
     fn test_set_cell_states_from_str() {
-        let game = Conway3D::try_from(SAMPLE).unwrap();
+        let game = Conway3D::from(SAMPLE);
         assert_eq!(game.get_cell_at_position((0, 0, 0).into()), Cell::Inactive);
         assert_eq!(game.get_cell_at_position((1, 0, 0).into()), Cell::Active);
         assert_eq!(game.get_cell_at_position((2, 0, 0).into()), Cell::Inactive);
@@ -218,7 +212,7 @@ mod tests {
 
     #[test]
     fn test_get_active_neighbors_count() {
-        let game = Conway3D::try_from(SAMPLE).unwrap();
+        let game = Conway3D::from(SAMPLE);
         assert_eq!(game.get_active_neighbors_count((0, 0, 0).into()), 1);
         assert_eq!(game.get_active_neighbors_count((1, 1, 0).into()), 5);
         assert_eq!(game.get_active_neighbors_count((1, 1, 1).into()), 5);
@@ -227,7 +221,7 @@ mod tests {
 
     #[test]
     fn test_step() {
-        let mut game = Conway3D::try_from(SAMPLE).unwrap();
+        let mut game = Conway3D::from(SAMPLE);
         assert_eq!(game.get_bounds(), ((0, 0, 0).into(), (2, 2, 0).into()));
 
         game.step();
@@ -240,7 +234,7 @@ mod tests {
 
     #[test]
     fn test_run_6_steps() {
-        let mut game = Conway3D::try_from(SAMPLE).unwrap();
+        let mut game = Conway3D::from(SAMPLE);
         game.run_steps(6);
         assert_eq!(game.count_active_cells(), 112);
     }

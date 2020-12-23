@@ -39,22 +39,15 @@
 use itertools::Itertools;
 
 const INPUT_VALUES: &str = include_str!("input.txt");
-const SEARCH_TARGET: usize = 2020;
-const EX1_COMBINATIONS: usize = 2;
-const EX2_COMBINATIONS: usize = 3;
 
 /// Part one answer.
 pub fn run_ex1() -> usize {
-    search_if_eq(INPUT_VALUES, EX1_COMBINATIONS, SEARCH_TARGET)
-        .into_iter()
-        .product()
+    search_if_eq(INPUT_VALUES, 2, 2020).into_iter().product()
 }
 
 /// Part two answer.
 pub fn run_ex2() -> usize {
-    search_if_eq(INPUT_VALUES, EX2_COMBINATIONS, SEARCH_TARGET)
-        .into_iter()
-        .product()
+    search_if_eq(INPUT_VALUES, 3, 2020).into_iter().product()
 }
 
 /// Search first combination of length `combinations` which sum equals to `target`.

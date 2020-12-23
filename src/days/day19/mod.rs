@@ -148,7 +148,6 @@
 //! After updating rules 8 and 11, how many messages completely match rule 0?
 
 use std::collections::HashMap;
-use std::convert::{TryFrom, TryInto};
 
 use regex::Regex;
 use thiserror::Error;
@@ -157,16 +156,12 @@ const INPUT_VALUES: &str = include_str!("input.txt");
 
 /// Part one answer.
 pub fn run_ex1() -> usize {
-    RuleSystem::from_rules_and_values(INPUT_VALUES)
-        .unwrap()
-        .len()
+    RuleSystem::from_rules_and_values(INPUT_VALUES).len()
 }
 
 /// Part two answer.
 pub fn run_ex2() -> usize {
-    RuleSystem::from_rules_and_values_alternative(INPUT_VALUES)
-        .unwrap()
-        .len()
+    RuleSystem::from_rules_and_values_alternative(INPUT_VALUES).len()
 }
 
 /// Day error.
@@ -229,47 +224,23 @@ impl Rule {
 pub struct RuleParser;
 
 impl RuleParser {
-    fn parse_rule_id(rule_id: &str) -> Result<usize, DayError> {
-        rule_id
-            .parse::<usize>()
-            .map_err(|e| DayError::ParseError(format!("Bad rule ID: {} ({:?})", rule_id, e)))
+    fn parse_rule_id(rule_id: &str) -> usize {
+        rule_id.parse::<usize>().unwrap()
     }
 
-    fn extract_rule_ids<'a, I>(components: I) -> Result<Vec<usize>, DayError>
+    fn extract_rule_ids<'a, I>(components: I) -> Vec<usize>
     where
         I: Iterator<Item = &'a str>,
     {
-        components
-            .map(Self::parse_rule_id)
-            .collect::<Result<Vec<_>, _>>()
+        components.map(Self::parse_rule_id).collect::<Vec<_>>()
     }
 
     fn try_parse_either(rule_components: &str) -> Result<RuleType, DayError> {
         let pipe_components = rule_components.split('|').collect::<Vec<_>>();
         if pipe_components.len() > 1 {
-            let a = Self::extract_rule_ids(
-                pipe_components
-                    .get(0)
-                    .ok_or_else(|| {
-                        DayError::ParseError(format!(
-                            "Could not parse first rule IDs from Either rule: {}",
-                            rule_components
-                        ))
-                    })?
-                    .split_whitespace(),
-            )?;
+            let a = Self::extract_rule_ids(pipe_components.get(0).unwrap().split_whitespace());
 
-            let b = Self::extract_rule_ids(
-                pipe_components
-                    .get(1)
-                    .ok_or_else(|| {
-                        DayError::ParseError(format!(
-                            "Could not parse second rule IDs from Either rule: {}",
-                            rule_components
-                        ))
-                    })?
-                    .split_whitespace(),
-            )?;
+            let b = Self::extract_rule_ids(pipe_components.get(1).unwrap().split_whitespace());
 
             Ok(RuleType::Either(a, b))
         } else {
@@ -283,7 +254,7 @@ impl RuleParser {
         let link_components = rule_components.split_whitespace().collect::<Vec<_>>();
         match link_components.len().cmp(&1) {
             Ordering::Greater => {
-                let ids = Self::extract_rule_ids(link_components.into_iter())?;
+                let ids = Self::extract_rule_ids(link_components.into_iter());
                 Ok(RuleType::Link(ids))
             }
             Ordering::Equal => {
@@ -318,38 +289,21 @@ impl RuleParser {
     /// # Arguments
     ///
     /// * `input` - Input
-    ///
-    /// # Errors
-    ///
-    /// * Parse errors
-    pub fn parse_rule(value: &str) -> Result<Rule, DayError> {
+    pub fn parse_rule(value: &str) -> Rule {
         let mut components = value.trim().split(':');
-        let rule_id: usize = Self::parse_rule_id(
-            components
-                .next()
-                .ok_or_else(|| {
-                    DayError::ParseError(format!("Could not extract rule ID from {}", value))
-                })?
-                .trim(),
-        )?;
-        let rule_components: &str = components
-            .next()
-            .ok_or_else(|| {
-                DayError::ParseError(format!("Could not extract rule components from {}", value))
-            })?
-            .trim();
+        let rule_id: usize = Self::parse_rule_id(components.next().unwrap().trim());
+        let rule_components: &str = components.next().unwrap().trim();
         let rule_type = Self::try_parse_either(rule_components)
             .or_else(|_| Self::try_parse_link(rule_components))
-            .or_else(|_| Self::try_parse_char(rule_components))?;
+            .or_else(|_| Self::try_parse_char(rule_components))
+            .unwrap();
 
-        Ok(Rule::new(rule_id, rule_type))
+        Rule::new(rule_id, rule_type)
     }
 }
 
-impl TryFrom<&str> for Rule {
-    type Error = DayError;
-
-    fn try_from(value: &str) -> Result<Self, Self::Error> {
+impl From<&str> for Rule {
+    fn from(value: &str) -> Self {
         RuleParser::parse_rule(value)
     }
 }
@@ -373,15 +327,11 @@ impl RuleSystem {
     /// # Arguments
     ///
     /// * `rule_str` - Rule as string
-    ///
-    /// # Errors
-    ///
-    /// * Rule parse error
-    pub fn add_rule_as_string(&mut self, rule_str: &str) -> Result<&Rule, DayError> {
-        let rule: Rule = rule_str.try_into()?;
+    pub fn add_rule_as_string(&mut self, rule_str: &str) -> &Rule {
+        let rule: Rule = rule_str.into();
         let rid = rule.id.unwrap();
         self.rules.insert(rid, rule);
-        Ok(self.rules.get(&rid).unwrap())
+        self.rules.get(&rid).unwrap()
     }
 
     /// Add multiple rules as string.
@@ -389,17 +339,11 @@ impl RuleSystem {
     /// # Arguments
     ///
     /// * `rule_str` - Rule as string
-    ///
-    /// # Errors
-    ///
-    /// * Rule parse error
-    pub fn add_rules_as_string(&mut self, rules_str: &str) -> Result<(), DayError> {
+    pub fn add_rules_as_string(&mut self, rules_str: &str) {
         for rule in rules_str.lines() {
-            let rule: Rule = rule.try_into()?;
+            let rule: Rule = rule.into();
             self.rules.insert(rule.id.unwrap(), rule);
         }
-
-        Ok(())
     }
 
     /// Replace rule.
@@ -418,13 +362,9 @@ impl RuleSystem {
     ///
     /// * `entry` - Entry
     /// * `rule_id` - Rule ID
-    ///
-    /// # Errors
-    ///
-    /// * Rule errors
-    pub fn validate_entry(&self, entry: &str, rule_id: usize) -> Result<bool, DayError> {
-        let rgx = self.generate_regex_from_rule_id(rule_id, &mut HashMap::new())?;
-        Ok(rgx.is_match(entry))
+    pub fn validate_entry(&self, entry: &str, rule_id: usize) -> bool {
+        let rgx = self.generate_regex_from_rule_id(rule_id, &mut HashMap::new());
+        rgx.is_match(entry)
     }
 
     /// Creates system from rules and values.
@@ -432,14 +372,10 @@ impl RuleSystem {
     /// # Arguments
     ///
     /// * `input` - Input
-    ///
-    /// # Errors
-    ///
-    /// * Parse errors
-    pub fn from_rules_and_values(input: &str) -> Result<Vec<&str>, DayError> {
-        let (rules, values) = Self::extract_rules_and_values(input)?;
+    pub fn from_rules_and_values(input: &str) -> Vec<&str> {
+        let (rules, values) = Self::extract_rules_and_values(input);
         let mut inst = Self::new();
-        inst.add_rules_as_string(rules)?;
+        inst.add_rules_as_string(rules);
         inst.filter_values_with_rule(values, 0, &mut HashMap::new())
     }
 
@@ -448,14 +384,10 @@ impl RuleSystem {
     /// # Arguments
     ///
     /// * `input` - Input
-    ///
-    /// # Errors
-    ///
-    /// * Parse errors
-    pub fn from_rules_and_values_alternative(input: &str) -> Result<Vec<&str>, DayError> {
-        let (rules, values) = Self::extract_rules_and_values(input)?;
+    pub fn from_rules_and_values_alternative(input: &str) -> Vec<&str> {
+        let (rules, values) = Self::extract_rules_and_values(input);
         let mut inst = Self::new();
-        inst.add_rules_as_string(rules)?;
+        inst.add_rules_as_string(rules);
 
         // Replace rules
         inst.replace_rule(8, RuleType::Either(vec![42], vec![42, 8]));
@@ -463,8 +395,8 @@ impl RuleSystem {
 
         // Precompute some cache values
         let mut cache = HashMap::new();
-        let rule_42 = inst.generate_regex_inner_str_from_rule_id(42, &mut cache)?;
-        let rule_31 = inst.generate_regex_inner_str_from_rule_id(31, &mut cache)?;
+        let rule_42 = inst.generate_regex_inner_str_from_rule_id(42, &mut cache);
+        let rule_31 = inst.generate_regex_inner_str_from_rule_id(31, &mut cache);
 
         // Match same quantity of 42 and 31, unroll until 4 (working magic value)
         let unroll_11 = (1..=4)
@@ -484,40 +416,30 @@ impl RuleSystem {
         values: &'a str,
         rule_id: usize,
         cache: &mut HashMap<usize, String>,
-    ) -> Result<Vec<&'a str>, DayError> {
-        let rule_0 = self.generate_regex_from_rule_id(rule_id, cache)?;
-        Ok(values
+    ) -> Vec<&'a str> {
+        let rule_0 = self.generate_regex_from_rule_id(rule_id, cache);
+        values
             .split('\n')
             .filter(|&l| rule_0.is_match(l))
-            .collect::<Vec<_>>())
+            .collect::<Vec<_>>()
     }
 
-    fn extract_rules_and_values(input: &str) -> Result<(&str, &str), DayError> {
+    fn extract_rules_and_values(input: &str) -> (&str, &str) {
         let mut components = input.split("\n\n");
-        let rules = components.next().ok_or_else(|| {
-            DayError::ParseError("Could not extract rules from input file".to_string())
-        })?;
-        let values = components.next().ok_or_else(|| {
-            DayError::ParseError("Could not extract values from input file".to_string())
-        })?;
+        let rules = components.next().unwrap();
+        let values = components.next().unwrap();
 
-        Ok((rules, values))
+        (rules, values)
     }
 
-    fn get_rule(&self, rule_id: usize) -> Result<&Rule, DayError> {
-        self.rules
-            .get(&rule_id)
-            .ok_or(DayError::MissingRule(rule_id))
+    fn get_rule(&self, rule_id: usize) -> &Rule {
+        self.rules.get(&rule_id).unwrap()
     }
 
-    fn generate_regex_str(
-        &self,
-        rule: &Rule,
-        regex_cache: &mut HashMap<usize, String>,
-    ) -> Result<String, DayError> {
+    fn generate_regex_str(&self, rule: &Rule, regex_cache: &mut HashMap<usize, String>) -> String {
         if let Some(rid) = rule.id {
             if let Some(v) = regex_cache.get(&rid) {
-                return Ok(v.clone());
+                return v.clone();
             }
         }
 
@@ -526,16 +448,16 @@ impl RuleSystem {
             RuleType::Link(l) => {
                 let lst: String = l
                     .iter()
-                    .map(|i| self.generate_regex_str(self.get_rule(*i)?, regex_cache))
-                    .collect::<Result<Vec<_>, DayError>>()?
+                    .map(|i| self.generate_regex_str(self.get_rule(*i), regex_cache))
+                    .collect::<Vec<_>>()
                     .join("");
                 format!("({})", lst)
             }
             RuleType::Either(la, lb) => {
                 let rule_a = Rule::new_anonymous(RuleType::Link(la.clone()));
                 let rule_b = Rule::new_anonymous(RuleType::Link(lb.clone()));
-                let regex_a = self.generate_regex_str(&rule_a, regex_cache)?;
-                let regex_b = self.generate_regex_str(&rule_b, regex_cache)?;
+                let regex_a = self.generate_regex_str(&rule_a, regex_cache);
+                let regex_b = self.generate_regex_str(&rule_b, regex_cache);
                 format!("({}|{})", regex_a, regex_b)
             }
         };
@@ -544,37 +466,36 @@ impl RuleSystem {
             regex_cache.insert(rid, r.clone());
         }
 
-        Ok(r)
+        r
     }
 
     fn generate_regex_str_from_rule_id(
         &self,
         rule_id: usize,
         cache: &mut HashMap<usize, String>,
-    ) -> Result<String, DayError> {
-        Ok(format!(
+    ) -> String {
+        format!(
             "^{}$",
-            self.generate_regex_inner_str_from_rule_id(rule_id, cache)?
-        ))
+            self.generate_regex_inner_str_from_rule_id(rule_id, cache)
+        )
     }
 
     fn generate_regex_inner_str_from_rule_id(
         &self,
         rule_id: usize,
         cache: &mut HashMap<usize, String>,
-    ) -> Result<String, DayError> {
-        let rule = self.get_rule(rule_id)?.clone();
-        Ok(self.generate_regex_str(&rule, cache)?)
+    ) -> String {
+        let rule = self.get_rule(rule_id).clone();
+        self.generate_regex_str(&rule, cache)
     }
 
     fn generate_regex_from_rule_id(
         &self,
         rule_id: usize,
         cache: &mut HashMap<usize, String>,
-    ) -> Result<Regex, DayError> {
-        let rgx_str = self.generate_regex_str_from_rule_id(rule_id, cache)?;
-        Regex::new(&rgx_str)
-            .map_err(|e| DayError::Unexpected(format!("Invalid regex: {} ({})", rgx_str, e)))
+    ) -> Regex {
+        let rgx_str = self.generate_regex_str_from_rule_id(rule_id, cache);
+        Regex::new(&rgx_str).unwrap()
     }
 }
 
@@ -588,37 +509,29 @@ mod tests {
     #[test]
     fn test_rule_parse() {
         assert_eq!(
-            Rule::try_from("0: 4 1 5").unwrap(),
+            Rule::from("0: 4 1 5"),
             Rule::new(0, RuleType::Link(vec![4, 1, 5]))
         );
         assert_eq!(
-            Rule::try_from("1: 2 3 | 3 2").unwrap(),
+            Rule::from("1: 2 3 | 3 2"),
             Rule::new(1, RuleType::Either(vec![2, 3], vec![3, 2]))
         );
         assert_eq!(
-            Rule::try_from("2: 4 4 | 5 5").unwrap(),
+            Rule::from("2: 4 4 | 5 5"),
             Rule::new(2, RuleType::Either(vec![4, 4], vec![5, 5]))
         );
         assert_eq!(
-            Rule::try_from("3: 4 5 | 5 4").unwrap(),
+            Rule::from("3: 4 5 | 5 4"),
             Rule::new(3, RuleType::Either(vec![4, 5], vec![5, 4]))
         );
-        assert_eq!(
-            Rule::try_from("4: \"a\"").unwrap(),
-            Rule::new(4, RuleType::Char('a'))
-        );
-        assert_eq!(
-            Rule::try_from("5: \"b\"").unwrap(),
-            Rule::new(5, RuleType::Char('b'))
-        );
+        assert_eq!(Rule::from("4: \"a\""), Rule::new(4, RuleType::Char('a')));
+        assert_eq!(Rule::from("5: \"b\""), Rule::new(5, RuleType::Char('b')));
     }
 
     #[test]
     fn test_generate_regex_str() {
         fn generate_regex_str(system: &mut RuleSystem, rule_id: usize) -> String {
-            system
-                .generate_regex_str_from_rule_id(rule_id, &mut HashMap::new())
-                .unwrap()
+            system.generate_regex_str_from_rule_id(rule_id, &mut HashMap::new())
         }
 
         let mut system = RuleSystem::new();
@@ -630,7 +543,7 @@ mod tests {
             4: "a"
             5: "b"
         "#};
-        system.add_rules_as_string(sample).unwrap();
+        system.add_rules_as_string(sample);
 
         assert_eq!(generate_regex_str(&mut system, 5), "^b$");
         assert_eq!(generate_regex_str(&mut system, 4), "^a$");
@@ -657,13 +570,13 @@ mod tests {
             4: "a"
             5: "b"
         "#};
-        system.add_rules_as_string(sample).unwrap();
+        system.add_rules_as_string(sample);
 
-        assert!(system.validate_entry("ababbb", 0).unwrap());
-        assert!(system.validate_entry("abbbab", 0).unwrap());
-        assert!(!system.validate_entry("bababa", 0).unwrap());
-        assert!(!system.validate_entry("aaabbb", 0).unwrap());
-        assert!(!system.validate_entry("aaabbbb", 0).unwrap());
+        assert!(system.validate_entry("ababbb", 0));
+        assert!(system.validate_entry("abbbab", 0));
+        assert!(!system.validate_entry("bababa", 0));
+        assert!(!system.validate_entry("aaabbb", 0));
+        assert!(!system.validate_entry("aaabbbb", 0));
     }
 
     #[test]
@@ -683,7 +596,7 @@ mod tests {
             aaaabbb
         "#};
 
-        assert_eq!(RuleSystem::from_rules_and_values(sample).unwrap().len(), 2);
+        assert_eq!(RuleSystem::from_rules_and_values(sample).len(), 2);
     }
 
     #[test]
@@ -739,9 +652,7 @@ mod tests {
         "#};
 
         assert_eq!(
-            RuleSystem::from_rules_and_values_alternative(sample)
-                .unwrap()
-                .len(),
+            RuleSystem::from_rules_and_values_alternative(sample).len(),
             12
         )
     }

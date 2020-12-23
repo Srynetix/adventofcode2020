@@ -72,7 +72,6 @@
 
 use std::{
     collections::{HashMap, HashSet},
-    convert::TryFrom,
     ops::RangeInclusive,
 };
 
@@ -82,8 +81,7 @@ const INPUT_VALUES: &str = include_str!("input.txt");
 
 /// Part one answer.
 pub fn run_ex1() -> usize {
-    InputParser::try_from(INPUT_VALUES)
-        .expect("Error while parsing")
+    InputParser::from(INPUT_VALUES)
         .validate_nearby_tickets()
         .iter()
         .sum()
@@ -91,11 +89,10 @@ pub fn run_ex1() -> usize {
 
 /// Part two answer.
 pub fn run_ex2() -> usize {
-    let input = InputParser::try_from(INPUT_VALUES).expect("Error while parsing");
+    let input = InputParser::from(INPUT_VALUES);
 
     input
         .map_ticket_fields()
-        .expect("should work")
         .iter()
         .filter_map(|(&k, &v)| {
             if k.starts_with("departure") {
@@ -142,63 +139,32 @@ impl TicketRule {
     }
 }
 
-impl TryFrom<&str> for TicketRule {
-    type Error = DayError;
-
-    fn try_from(value: &str) -> Result<Self, Self::Error> {
+impl From<&str> for TicketRule {
+    fn from(value: &str) -> Self {
         let mut split_iter = value.trim().split(':');
         let (name, ranges_rule) = (
-            split_iter
-                .next()
-                .ok_or_else(|| {
-                    DayError::RuleParseError(format!("Could not parse name: {}", value))
-                })?
-                .to_string(),
-            split_iter
-                .next()
-                .ok_or_else(|| {
-                    DayError::RuleParseError(format!("Could not parse range rules: {}", value))
-                })?
-                .to_string(),
+            split_iter.next().unwrap().to_string(),
+            split_iter.next().unwrap().to_string(),
         );
 
-        let ranges: Result<Vec<RangeInclusive<usize>>, Self::Error> = ranges_rule
+        let ranges: Vec<RangeInclusive<usize>> = ranges_rule
             .trim()
             .split("or")
             .map(|r| {
-                let vec: Result<Vec<_>, Self::Error> = r
+                let vec: Vec<_> = r
                     .trim()
                     .split('-')
-                    .map(|x| {
-                        x.parse::<usize>().map_err(|e| {
-                            DayError::RuleParseError(format!("Could not parse rule: {}", e))
-                        })
-                    })
+                    .map(|x| x.parse::<usize>().unwrap())
                     .collect();
-                vec.and_then(|x| {
-                    let first = x.get(0).copied().ok_or_else(|| {
-                        DayError::RuleParseError(format!(
-                            "Could not parse rule first member: {:?}",
-                            x
-                        ))
-                    })?;
 
-                    let second = x.get(1).copied().ok_or_else(|| {
-                        DayError::RuleParseError(format!(
-                            "Could not parse rule second member: {:?}",
-                            x
-                        ))
-                    })?;
+                let first = vec.get(0).copied().unwrap();
+                let second = vec.get(1).copied().unwrap();
 
-                    Ok(RangeInclusive::new(first, second))
-                })
+                RangeInclusive::new(first, second)
             })
             .collect();
 
-        Ok(Self {
-            name,
-            ranges: ranges?,
-        })
+        Self { name, ranges }
     }
 }
 
@@ -208,20 +174,14 @@ pub struct Ticket {
     numbers: Vec<usize>,
 }
 
-impl TryFrom<&str> for Ticket {
-    type Error = DayError;
-
-    fn try_from(value: &str) -> Result<Self, Self::Error> {
-        let numbers: Result<Vec<_>, Self::Error> = value
+impl From<&str> for Ticket {
+    fn from(value: &str) -> Self {
+        let numbers: Vec<_> = value
             .split(',')
-            .map(|n| {
-                n.parse::<usize>().map_err(|e| {
-                    DayError::TicketParseError(format!("Could not convert ticket numbers: {}", e))
-                })
-            })
+            .map(|n| n.parse::<usize>().unwrap())
             .collect();
 
-        Ok(Self { numbers: numbers? })
+        Self { numbers }
     }
 }
 
@@ -272,11 +232,7 @@ impl InputParser {
     }
 
     /// Map ticket fields with position.
-    ///
-    /// # Errors
-    ///
-    /// * Configuration error
-    pub fn map_ticket_fields(&self) -> Result<HashMap<&str, usize>, DayError> {
+    pub fn map_ticket_fields(&self) -> HashMap<&str, usize> {
         // Filter nearby tickets
         let remaining_tickets: Vec<_> = self
             .nearby_tickets
@@ -300,15 +256,9 @@ impl InputParser {
             for r in &self.rules {
                 for (idx, n) in t.numbers.iter().enumerate() {
                     if r.validate_number(*n) {
-                        positions
-                            .get_mut(&*r.name)
-                            .expect("should not happen")
-                            .push(idx);
+                        positions.get_mut(&*r.name).unwrap().push(idx);
                     } else {
-                        invalid_positions
-                            .get_mut(&*r.name)
-                            .expect("should not happen")
-                            .insert(idx);
+                        invalid_positions.get_mut(&*r.name).unwrap().insert(idx);
                     }
                 }
             }
@@ -329,7 +279,7 @@ impl InputParser {
             // Get the most seen value per rule
             let mut rules_to_remove = vec![];
             for (idx, rn) in remaining_rules.iter().enumerate() {
-                let counter = positions.get(rn).expect("should not happen");
+                let counter = positions.get(rn).unwrap();
                 let count_map = Self::count_occurences_in_vec(counter);
 
                 // Simple case, only one number available in counter
@@ -340,10 +290,7 @@ impl InputParser {
 
                     // Add as invalid positions for other rules
                     for r in remaining_rules.iter().filter(|&&o_rn| o_rn != *rn) {
-                        invalid_positions
-                            .get_mut(r)
-                            .expect("should not happen")
-                            .insert(position);
+                        invalid_positions.get_mut(r).unwrap().insert(position);
                     }
                 }
             }
@@ -359,7 +306,7 @@ impl InputParser {
             *pos += 1;
         }
 
-        Ok(rules_affectation)
+        rules_affectation
     }
 
     fn count_occurences_in_vec(v: &[usize]) -> HashMap<usize, usize> {
@@ -371,45 +318,27 @@ impl InputParser {
     }
 }
 
-impl TryFrom<&str> for InputParser {
-    type Error = DayError;
-
-    fn try_from(value: &str) -> Result<Self, Self::Error> {
+impl From<&str> for InputParser {
+    fn from(value: &str) -> Self {
         let groups: Vec<&str> = value.trim().split("\n\n").collect();
-        let rules_section = groups.get(0).cloned().ok_or_else(|| {
-            DayError::InputParseError(format!("Could not get rules section: {:?}", groups))
-        })?;
-        let your_ticket_section = groups.get(1).cloned().ok_or_else(|| {
-            DayError::InputParseError(format!("Could not get 'your ticket' section: {:?}", groups))
-        })?;
-        let nearby_tickets_section = groups.get(2).cloned().ok_or_else(|| {
-            DayError::InputParseError(format!(
-                "Could not get 'nearby tickets' section: {:?}",
-                groups
-            ))
-        })?;
+        let rules_section = groups.get(0).cloned().unwrap();
+        let your_ticket_section = groups.get(1).cloned().unwrap();
+        let nearby_tickets_section = groups.get(2).cloned().unwrap();
 
-        let rules: Result<Vec<_>, Self::Error> = rules_section
-            .trim()
-            .lines()
-            .map(TicketRule::try_from)
-            .collect();
-        let your_ticket =
-            Ticket::try_from(your_ticket_section.trim().lines().nth(1).ok_or_else(|| {
-                DayError::InputParseError("'your ticket:' entry is missing".into())
-            })?);
-        let nearby_tickets: Result<Vec<_>, Self::Error> = nearby_tickets_section
+        let rules: Vec<_> = rules_section.trim().lines().map(TicketRule::from).collect();
+        let your_ticket = Ticket::from(your_ticket_section.trim().lines().nth(1).unwrap());
+        let nearby_tickets: Vec<_> = nearby_tickets_section
             .trim()
             .lines()
             .skip(1)
-            .map(Ticket::try_from)
+            .map(Ticket::from)
             .collect();
 
-        Ok(Self {
-            rules: rules?,
-            your_ticket: your_ticket?,
-            nearby_tickets: nearby_tickets?,
-        })
+        Self {
+            rules,
+            your_ticket,
+            nearby_tickets,
+        }
     }
 }
 
@@ -452,7 +381,7 @@ mod tests {
     #[test]
     fn test_ticket_rule_parse() {
         assert_eq!(
-            TicketRule::try_from("class: 1-3 or 5-7").unwrap(),
+            TicketRule::from("class: 1-3 or 5-7"),
             TicketRule {
                 name: "class".into(),
                 ranges: vec![
@@ -466,7 +395,7 @@ mod tests {
     #[test]
     fn test_ticket_parse() {
         assert_eq!(
-            Ticket::try_from("7,1,14").unwrap(),
+            Ticket::from("7,1,14"),
             Ticket {
                 numbers: vec![7, 1, 14]
             }
@@ -476,7 +405,7 @@ mod tests {
     #[test]
     fn test_input_parse() {
         assert_eq!(
-            InputParser::try_from(SAMPLE).unwrap(),
+            InputParser::from(SAMPLE),
             InputParser {
                 rules: vec![
                     TicketRule {
@@ -524,21 +453,21 @@ mod tests {
 
     #[test]
     fn test_validate_nearby_tickets() {
-        let parser = InputParser::try_from(SAMPLE).unwrap();
+        let parser = InputParser::from(SAMPLE);
         assert_eq!(parser.validate_nearby_tickets(), vec![4, 55, 12]);
         assert_eq!(parser.validate_nearby_tickets().iter().sum::<usize>(), 71);
     }
 
     #[test]
     fn test_map_ticket_fields() {
-        let parser = InputParser::try_from(SAMPLE_2).unwrap();
+        let parser = InputParser::from(SAMPLE_2);
         let res: HashMap<&str, usize> = maplit::hashmap! {
             "class" => 2,
             "row" => 1,
             "seat" => 3
         };
 
-        assert_eq!(parser.map_ticket_fields().unwrap(), res);
+        assert_eq!(parser.map_ticket_fields(), res);
     }
 
     #[test]

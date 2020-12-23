@@ -1,9 +1,17 @@
 //! Shell module
 
-use eyre::{eyre, Result};
 use structopt::StructOpt;
+use thiserror::Error;
 
 use super::days;
+
+#[derive(Debug, Error)]
+enum Error {
+    #[error("Day {0} not implemented yet")]
+    DayNotImplemented(usize),
+    #[error("Day {0} is not in Advent of Code range (1-25)")]
+    UnknownDay(usize),
+}
 
 #[derive(Debug, StructOpt)]
 enum Command {
@@ -22,7 +30,7 @@ struct Opt {
     cmd: Command,
 }
 
-fn run_day<F1, F2, O1, O2>(day: usize, ex1: F1, ex2: F2) -> Result<()>
+fn run_day<F1, F2, O1, O2>(day: usize, ex1: F1, ex2: F2)
 where
     F1: Fn() -> O1,
     F2: Fn() -> O2,
@@ -30,10 +38,9 @@ where
     O2: std::fmt::Display,
 {
     println!("Day {:<2} > [Ex1] {:<16} | [Ex2] {:<16}", day, ex1(), ex2());
-    Ok(())
 }
 
-fn run_day_wrapper(d: usize) -> Result<()> {
+fn run_day_wrapper(d: usize) -> Result<(), Error> {
     match d {
         1 => run_day(d, days::day01::run_ex1, days::day01::run_ex2),
         2 => run_day(d, days::day02::run_ex1, days::day02::run_ex2),
@@ -58,18 +65,15 @@ fn run_day_wrapper(d: usize) -> Result<()> {
         21 => run_day(d, days::day21::run_ex1, days::day21::run_ex2),
         22 => run_day(d, days::day22::run_ex1, days::day22::run_ex2),
         23 => run_day(d, days::day23::run_ex1, days::day23::run_ex2),
-        d if d <= 25 => Err(eyre!("Day {} not implemented yet.", d)),
-        d => Err(eyre!(
-            "Day {} is not in Advent of Code day range (1-25).",
-            d
-        )),
+        d if d <= 25 => return Err(Error::DayNotImplemented(d)),
+        d => return Err(Error::UnknownDay(d)),
     }
+
+    Ok(())
 }
 
 /// Initialize command line arguments.
 pub fn initialize_command_line() {
-    env_logger::init();
-
     let args = Opt::from_args();
 
     match args.cmd {

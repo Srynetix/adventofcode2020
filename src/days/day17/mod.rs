@@ -404,8 +404,6 @@ mod common;
 mod conway3d;
 mod conway4d;
 
-use std::convert::TryFrom;
-
 use self::conway3d::Conway3D;
 use self::conway4d::Conway4D;
 
@@ -413,14 +411,14 @@ const INPUT_VALUES: &str = include_str!("input.txt");
 
 /// Part one answer.
 pub fn run_ex1() -> usize {
-    let mut game = Conway3D::try_from(INPUT_VALUES).expect("Bad input");
+    let mut game = Conway3D::from(INPUT_VALUES);
     game.run_steps(6);
     game.count_active_cells()
 }
 
 /// Part two answer.
 pub fn run_ex2() -> usize {
-    let mut game = Conway4D::try_from(INPUT_VALUES).expect("Bad input");
+    let mut game = Conway4D::from(INPUT_VALUES);
     game.run_steps(6);
     game.count_active_cells()
 }

@@ -131,10 +131,7 @@ impl XmasWeaknessOutput {
     /// Find smallest and largest value in data.
     pub fn get_min_max(&self) -> (usize, usize) {
         let range = &self.data[self.start_cursor..self.end_cursor];
-        (
-            *range.iter().min().expect("should have a min value"),
-            *range.iter().max().expect("should have a max value"),
-        )
+        (*range.iter().min().unwrap(), *range.iter().max().unwrap())
     }
 
     /// Get sum of min and max value.

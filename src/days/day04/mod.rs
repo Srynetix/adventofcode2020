@@ -127,7 +127,6 @@
 
 use std::collections::HashMap;
 
-use eyre::Result;
 use once_cell::sync::Lazy;
 use regex::Regex;
 
@@ -135,16 +134,13 @@ const INPUT_VALUES: &str = include_str!("input.txt");
 const REQUIRED_FIELDS: &[&str] = &["byr", "iyr", "eyr", "hgt", "hcl", "ecl", "pid"];
 const VALID_EYE_COLOR: &[&str] = &["amb", "blu", "brn", "gry", "grn", "hzl", "oth"];
 static HEIGHT_RGX: Lazy<Regex> =
-    Lazy::new(|| Regex::new(r"^(?P<amount>\d+)(?P<unit>cm|in)$").expect("Bad regex format"));
-static COLOR_RGX: Lazy<Regex> =
-    Lazy::new(|| Regex::new(r"^#(?P<color>[0-9a-f]{6})$").expect("Bad regex format"));
-static PID_RGX: Lazy<Regex> =
-    Lazy::new(|| Regex::new(r"^(?P<num>\d{9})$").expect("Bad regex format"));
+    Lazy::new(|| Regex::new(r"^(?P<amount>\d+)(?P<unit>cm|in)$").unwrap());
+static COLOR_RGX: Lazy<Regex> = Lazy::new(|| Regex::new(r"^#(?P<color>[0-9a-f]{6})$").unwrap());
+static PID_RGX: Lazy<Regex> = Lazy::new(|| Regex::new(r"^(?P<num>\d{9})$").unwrap());
 
 /// Part one answer.
 pub fn run_ex1() -> usize {
     PassportValidator::parse_entries(INPUT_VALUES)
-        .expect("Bad input format")
         .iter()
         .filter(|x| x.is_valid())
         .count()
@@ -153,7 +149,6 @@ pub fn run_ex1() -> usize {
 /// Part two answer.
 pub fn run_ex2() -> usize {
     PassportValidator::parse_entries(INPUT_VALUES)
-        .expect("Bad input format")
         .iter()
         .filter(|x| x.is_valid_full())
         .count()
@@ -168,22 +163,18 @@ impl PassportValidator {
     /// # Arguments
     ///
     /// * `entry` - Passport entry
-    ///
-    /// # Errors
-    ///
-    /// * Entry parse error
-    pub fn parse_entry(entry: &str) -> Result<Self> {
-        Ok(Self(
+    pub fn parse_entry(entry: &str) -> Self {
+        Self(
             entry
                 .split_whitespace()
                 .map(|e| {
                     let mut spl = e.split_terminator(':');
-                    let key = spl.next().expect("missing key").to_owned();
-                    let value = spl.next().expect("missing value").to_owned();
+                    let key = spl.next().map(ToOwned::to_owned).unwrap();
+                    let value = spl.next().map(ToOwned::to_owned).unwrap();
                     (key, value)
                 })
                 .collect(),
-        ))
+        )
     }
 
     /// Validate passport field.
@@ -192,50 +183,46 @@ impl PassportValidator {
     ///
     /// * `key` - Field key
     /// * `value` - Field value
-    ///
-    /// # Errors
-    ///
-    /// * Parse errors
-    pub fn try_validate_field(key: &str, value: &str) -> Result<bool> {
+    pub fn try_validate_field(key: &str, value: &str) -> bool {
         match key {
             "byr" => {
                 // At least 1920 at most 2002
-                let value: usize = value.parse()?;
-                Ok(value >= 1920 && value <= 2002)
+                let value: usize = value.parse().unwrap();
+                value >= 1920 && value <= 2002
             }
             "iyr" => {
                 // At least 2010 at most 2020
-                let value: usize = value.parse()?;
-                Ok(value >= 2010 && value <= 2020)
+                let value: usize = value.parse().unwrap();
+                value >= 2010 && value <= 2020
             }
             "eyr" => {
                 // At least 2020 at most 2030
-                let value: usize = value.parse()?;
-                Ok(value >= 2020 && value <= 2030)
+                let value: usize = value.parse().unwrap();
+                value >= 2020 && value <= 2030
             }
             "hgt" => {
                 if let Some(v) = HEIGHT_RGX.captures(value) {
                     let amount = v
                         .name("amount")
                         .and_then(|x| x.as_str().parse::<usize>().ok())
-                        .expect("should work");
-                    let unit = v.name("unit").map(|x| x.as_str()).expect("should exist");
+                        .unwrap();
+                    let unit = v.name("unit").map(|x| x.as_str()).unwrap();
 
                     match unit {
                         // At least 150 at most 193
-                        "cm" => Ok(amount >= 150 && amount <= 193),
+                        "cm" => amount >= 150 && amount <= 193,
                         // At least 59 at most 76
-                        "in" => Ok(amount >= 59 && amount <= 76),
+                        "in" => amount >= 59 && amount <= 76,
                         _ => unreachable!(),
                     }
                 } else {
-                    Ok(false)
+                    false
                 }
             }
-            "hcl" => Ok(COLOR_RGX.is_match(value)),
-            "ecl" => Ok(VALID_EYE_COLOR.contains(&value)),
-            "pid" => Ok(PID_RGX.is_match(value)),
-            _ => Ok(false),
+            "hcl" => COLOR_RGX.is_match(value),
+            "ecl" => VALID_EYE_COLOR.contains(&value),
+            "pid" => PID_RGX.is_match(value),
+            _ => false,
         }
     }
 
@@ -255,7 +242,7 @@ impl PassportValidator {
             .filter(|&x| {
                 self.0
                     .get(*x)
-                    .map_or(false, |v| Self::try_validate_field(x, v).unwrap_or(false))
+                    .map_or(false, |v| Self::try_validate_field(x, v))
             })
             .count()
             == REQUIRED_FIELDS.len()
@@ -266,11 +253,7 @@ impl PassportValidator {
     /// # Arguments
     ///
     /// * `entries` - Passport entries
-    ///
-    /// # Errors
-    ///
-    /// * Entry parse error
-    pub fn parse_entries(entries: &str) -> Result<Vec<Self>> {
+    pub fn parse_entries(entries: &str) -> Vec<Self> {
         entries.split("\n\n").map(Self::parse_entry).collect()
     }
 }

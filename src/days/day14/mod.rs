@@ -114,24 +114,21 @@
 
 use std::collections::HashMap;
 
-use eyre::{eyre, Result};
 use once_cell::sync::Lazy;
 use regex::Regex;
 
 const INPUT_VALUES: &str = include_str!("input.txt");
 
-static RGX_MASK: Lazy<Regex> =
-    Lazy::new(|| Regex::new(r"mask = (?P<mask>[01X]{36})").expect("bad mask regex"));
+static RGX_MASK: Lazy<Regex> = Lazy::new(|| Regex::new(r"mask = (?P<mask>[01X]{36})").unwrap());
 
-static RGX_MEM: Lazy<Regex> = Lazy::new(|| {
-    Regex::new(r"mem\[(?P<mem_idx>\d+)\] = (?P<mem_value>\d+)").expect("bad mem regex")
-});
+static RGX_MEM: Lazy<Regex> =
+    Lazy::new(|| Regex::new(r"mem\[(?P<mem_idx>\d+)\] = (?P<mem_value>\d+)").unwrap());
 
 /// Part one answer.
 pub fn run_ex1() -> usize {
     let mut mem = BitmaskMemory::new();
     for l in INPUT_VALUES.lines() {
-        mem.parse_line(l, false).unwrap();
+        mem.parse_line(l, false);
     }
 
     mem.get_memory_sum()
@@ -141,7 +138,7 @@ pub fn run_ex1() -> usize {
 pub fn run_ex2() -> usize {
     let mut mem = BitmaskMemory::new();
     for l in INPUT_VALUES.lines() {
-        mem.parse_line(l, true).unwrap();
+        mem.parse_line(l, true);
     }
 
     mem.get_memory_sum()
@@ -168,14 +165,9 @@ impl BitmaskMemory {
     /// # Arguments
     ///
     /// * `mask` - Mask
-    ///
-    /// # Errors
-    ///
-    /// * Mask size error
-    /// * Mask character error
-    pub fn set_mask_from_str(&mut self, mask: &str) -> Result<()> {
+    pub fn set_mask_from_str(&mut self, mask: &str) {
         if mask.len() != 36 {
-            return Err(eyre!("Mask str should be 36 characters"));
+            panic!("Mask str should be 36 characters");
         }
 
         for (idx, c) in mask.chars().enumerate() {
@@ -183,14 +175,12 @@ impl BitmaskMemory {
                 'X' => self.current_mask[idx] = None,
                 '0' => self.current_mask[idx] = Some(false),
                 '1' => self.current_mask[idx] = Some(true),
-                _ => return Err(eyre!("Invalid mask character: {}", c)),
+                _ => panic!("Invalid mask character: {}", c),
             }
         }
 
         // Reverse mask
         self.current_mask.reverse();
-
-        Ok(())
     }
 
     /// Set value in memory using value mask.
@@ -228,36 +218,26 @@ impl BitmaskMemory {
     /// # Arguments
     ///
     /// * `input` - Input line
-    ///
-    /// # Errors
-    ///
-    /// * Mask size error
-    /// * Mask character error
-    pub fn parse_line(&mut self, input: &str, use_address_mask: bool) -> Result<()> {
+    /// * `use_address_mask` - Use address mask
+    pub fn parse_line(&mut self, input: &str, use_address_mask: bool) {
         if let Some(captures) = RGX_MASK.captures(input.trim()) {
             let mask = captures.name("mask").unwrap().as_str();
-            self.set_mask_from_str(mask)?;
-            Ok(())
-        } else if let Some(captures) = RGX_MEM.captures(input.trim()) {
+            self.set_mask_from_str(mask);
+        } else {
+            let captures = RGX_MEM.captures(input.trim()).unwrap();
             let mem_idx = captures
                 .name("mem_idx")
-                .unwrap()
-                .as_str()
-                .parse::<usize>()?;
+                .map(|x| x.as_str().parse::<usize>().unwrap())
+                .unwrap();
             let mem_value = captures
                 .name("mem_value")
-                .unwrap()
-                .as_str()
-                .parse::<usize>()?;
+                .map(|x| x.as_str().parse::<usize>().unwrap())
+                .unwrap();
             if use_address_mask {
                 self.set_value_in_memory_using_address_mask(mem_idx, mem_value);
             } else {
                 self.set_value_in_memory_using_value_mask(mem_idx, mem_value);
             }
-
-            Ok(())
-        } else {
-            Err(eyre!("Bad input line"))
         }
     }
 
@@ -345,21 +325,21 @@ mod tests {
         let mut lines = SAMPLE.lines();
         let mask = lines.next().unwrap();
 
-        memory.parse_line(mask, false).unwrap();
+        memory.parse_line(mask, false);
         assert_eq!(memory.current_mask[0], None);
         assert_eq!(memory.current_mask[1], Some(false));
         assert_eq!(memory.current_mask[6], Some(true));
 
         let mem8 = lines.next().unwrap();
-        memory.parse_line(mem8, false).unwrap();
+        memory.parse_line(mem8, false);
         assert_eq!(memory.memory[&8], 73);
 
         let mem7 = lines.next().unwrap();
-        memory.parse_line(mem7, false).unwrap();
+        memory.parse_line(mem7, false);
         assert_eq!(memory.memory[&7], 101);
 
         let mem8 = lines.next().unwrap();
-        memory.parse_line(mem8, false).unwrap();
+        memory.parse_line(mem8, false);
         assert_eq!(memory.memory[&8], 64);
 
         assert_eq!(memory.get_memory_sum(), 165);
@@ -373,15 +353,15 @@ mod tests {
         let mut lines = SAMPLE_2.lines();
 
         // Parse first mask
-        memory.parse_line(lines.next().unwrap(), true).unwrap();
-        memory.parse_line(lines.next().unwrap(), true).unwrap();
+        memory.parse_line(lines.next().unwrap(), true);
+        memory.parse_line(lines.next().unwrap(), true);
         for x in &[26, 27, 58, 59] {
             assert_eq!(memory.memory[x], 100);
         }
 
         // Parse second mask
-        memory.parse_line(lines.next().unwrap(), true).unwrap();
-        memory.parse_line(lines.next().unwrap(), true).unwrap();
+        memory.parse_line(lines.next().unwrap(), true);
+        memory.parse_line(lines.next().unwrap(), true);
         for x in &[16, 17, 18, 19, 24, 25, 26, 27] {
             assert_eq!(memory.memory[x], 1);
         }

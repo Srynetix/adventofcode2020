@@ -242,14 +242,11 @@
 #![allow(clippy::cast_sign_loss)]
 #![allow(clippy::cast_possible_wrap)]
 
-use eyre::{eyre, Result};
-
 const INPUT_VALUES: &str = include_str!("input.txt");
 
 /// Part one answer.
 pub fn run_ex1() -> usize {
     SeatLayout::from_input(INPUT_VALUES)
-        .expect("bad input")
         .run_until_stable()
         .occupied_seats
 }
@@ -257,7 +254,6 @@ pub fn run_ex1() -> usize {
 /// Part two answer.
 pub fn run_ex2() -> usize {
     SeatLayout::from_input(INPUT_VALUES)
-        .expect("bad input")
         .run_with_visibility_until_stable()
         .occupied_seats
 }
@@ -279,16 +275,12 @@ impl SeatState {
     /// # Arguments
     ///
     /// * `character` - Character
-    ///
-    /// # Errors
-    ///
-    /// * Bad character
-    pub fn from_char(character: char) -> Result<Self> {
+    pub fn from_char(character: char) -> Self {
         match character {
-            '.' => Ok(Self::Floor),
-            'L' => Ok(Self::Free),
-            '#' => Ok(Self::Occupied),
-            e => Err(eyre!("Bad seat state character: {}", e)),
+            '.' => Self::Floor,
+            'L' => Self::Free,
+            '#' => Self::Occupied,
+            e => panic!("Bad seat state character: {}", e),
         }
     }
 
@@ -337,25 +329,21 @@ impl SeatLayout {
     /// # Arguments
     ///
     /// * `input` - Input string
-    ///
-    /// # Errors
-    ///
-    /// * Bad format
-    pub fn from_input(input: &str) -> Result<Self> {
+    pub fn from_input(input: &str) -> Self {
         let data = input
             .lines()
             .map(|x| {
                 x.trim()
                     .chars()
                     .map(SeatState::from_char)
-                    .collect::<Result<Vec<SeatState>>>()
+                    .collect::<Vec<SeatState>>()
             })
-            .collect::<Result<Vec<Vec<SeatState>>>>()?;
+            .collect::<Vec<Vec<SeatState>>>();
 
-        Ok(Self {
+        Self {
             frontbuffer: data.clone(),
             backbuffer: data,
-        })
+        }
     }
 
     /// Get layout size
@@ -677,13 +665,13 @@ mod tests {
 
     #[test]
     fn test_layout_parse() {
-        let layout = SeatLayout::from_input(SAMPLE_LAYOUT).unwrap();
+        let layout = SeatLayout::from_input(SAMPLE_LAYOUT);
         assert_eq!(layout.get_size(), (10, 10));
     }
 
     #[test]
     fn test_step() {
-        let mut layout = SeatLayout::from_input(SAMPLE_LAYOUT).unwrap();
+        let mut layout = SeatLayout::from_input(SAMPLE_LAYOUT);
 
         let stats = layout.step();
         assert_eq!(stats.free_seats, 0);
@@ -692,7 +680,7 @@ mod tests {
 
     #[test]
     fn test_run_until_stable() {
-        let mut layout = SeatLayout::from_input(SAMPLE_LAYOUT).unwrap();
+        let mut layout = SeatLayout::from_input(SAMPLE_LAYOUT);
         let stats = layout.run_until_stable();
 
         assert_eq!(stats.occupied_seats, 37);
@@ -700,7 +688,7 @@ mod tests {
 
     #[test]
     fn test_run_with_visibility_until_stable() {
-        let mut layout = SeatLayout::from_input(SAMPLE_LAYOUT).unwrap();
+        let mut layout = SeatLayout::from_input(SAMPLE_LAYOUT);
         let stats = layout.run_with_visibility_until_stable();
 
         assert_eq!(stats.occupied_seats, 26);
@@ -708,20 +696,20 @@ mod tests {
 
     #[test]
     fn test_scan_1() {
-        let layout = SeatLayout::from_input(SAMPLE_SCAN_1).unwrap();
+        let layout = SeatLayout::from_input(SAMPLE_SCAN_1);
         assert_eq!(layout.count_visible_occupied_seats(3, 4), 8);
     }
 
     #[test]
     fn test_scan_2() {
-        let layout = SeatLayout::from_input(SAMPLE_SCAN_2).unwrap();
+        let layout = SeatLayout::from_input(SAMPLE_SCAN_2);
         assert_eq!(layout.count_visible_occupied_seats(1, 1), 0);
         assert_eq!(layout.count_visible_occupied_seats(3, 1), 1);
     }
 
     #[test]
     fn test_scan_3() {
-        let layout = SeatLayout::from_input(SAMPLE_SCAN_3).unwrap();
+        let layout = SeatLayout::from_input(SAMPLE_SCAN_3);
         assert_eq!(layout.count_visible_occupied_seats(3, 3), 0);
     }
 
