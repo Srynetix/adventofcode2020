@@ -90,170 +90,207 @@
 //!
 //! Determine which two cups will end up immediately clockwise of cup 1. What do you get if you multiply their labels together?
 
-use std::collections::VecDeque;
+const INPUT_VALUES: &str = include_str!("input.txt");
 
 /// Part one answer.
 pub fn run_ex1() -> String {
-    let mut cups = parse_cups(include_str!("input.txt"));
-    run_steps(&mut cups, 100, 0);
-    string_cupslice(&pick_cups_after_1(&cups))
+    let mut cups = parse_cups(INPUT_VALUES);
+    run_steps(&mut cups, 100);
+    cups.to_string_from_one()
 }
 
 /// Part two answer.
-pub const fn run_ex2() -> usize {
-    0
+pub fn run_ex2() -> usize {
+    let mut cups = prepare_million_cups(INPUT_VALUES);
+    run_steps(&mut cups, 10_000_000);
+
+    let a = cups.next(1);
+    let b = cups.next(a);
+    a * b
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
-struct Cup(usize);
+/// Cup.
+pub type Cup = usize;
 
-#[derive(PartialEq, Eq)]
-struct Cups(VecDeque<Cup>);
+/// Cups.
+#[derive(Debug)]
+pub struct Cups {
+    head: Cup,
+    data: Vec<Cup>,
+}
 
-struct CupSlice(Vec<Cup>);
-
-impl std::fmt::Debug for Cups {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", string_cups(&self))
+impl Cups {
+    /// Get next cup from `cup`.
+    ///
+    /// # Arguments
+    ///
+    /// * `cup` - Cup
+    pub fn next(&self, cup: Cup) -> Cup {
+        self.data[cup]
     }
-}
 
-impl std::fmt::Debug for CupSlice {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", string_cupslice(&self))
+    /// Set next cup link.
+    ///
+    /// # Arguments
+    ///
+    /// * `cup` - Source cup
+    /// * `next` - Target cup
+    pub fn set_next(&mut self, cup: Cup, next: Cup) {
+        self.data[cup] = next;
     }
-}
 
-fn string_cupslice(cups: &CupSlice) -> String {
-    cups.0.iter().fold(String::new(), |mut acc, c| {
-        acc.push_str(&c.0.to_string());
-        acc
-    })
-}
-
-fn string_cups(cups: &Cups) -> String {
-    cups.0.iter().fold(String::new(), |mut acc, c| {
-        acc.push_str(&c.0.to_string());
-        acc
-    })
-}
-
-fn parse_cups(input: &str) -> Cups {
-    Cups(
-        input
-            .trim()
-            .chars()
-            .map(|c| Cup(c.to_digit(10).unwrap() as usize))
-            .collect(),
-    )
-}
-
-fn prepare_million_cups(cups: &mut Cups) {
-    cups.0.resize(1_000_000, Cup(0));
-
-    for i in 10..1_000_000 {
-        cups.0.push_back(Cup(i));
-    }
-}
-
-fn find_destination_cup_position(cups: &Cups, max_cups_num: usize, source_cup_id: usize) -> usize {
-    let prev_cup_id = {
-        if source_cup_id == 1 {
-            max_cups_num
+    /// Get previous cup.
+    ///
+    /// # Arguments
+    ///
+    /// * `cup` - Target cup
+    pub fn prev_cup(&self, cup: Cup) -> Cup {
+        let dest = cup - 1;
+        if dest == 0 {
+            self.data.len() - 1
         } else {
-            source_cup_id - 1
+            dest
         }
-    };
+    }
 
-    if let Some(position) = cups.0.iter().position(|&cup| cup.0 == prev_cup_id) {
-        position
-    } else {
-        find_destination_cup_position(cups, max_cups_num, prev_cup_id)
+    /// Join cups to string, starting from cup one (and ignoring it).
+    pub fn to_string_from_one(&self) -> String {
+        cups_to_string(&self, 1)[1..].to_string()
     }
 }
 
-fn get_cup_position(cups: &Cups, cup_id: usize) -> usize {
-    cups.0.iter().position(|&cup| cup.0 == cup_id).unwrap()
-}
-
-fn remove_three_cups(cups: &mut Cups, cursor: usize) -> CupSlice {
-    let mut drained_cups = vec![];
-    for _ in 0..=2 {
-        let element = cups.0.remove(cursor).or_else(|| cups.0.pop_front());
-        drained_cups.push(element.unwrap());
-    }
-
-    CupSlice(drained_cups)
-}
-
-fn push_three_cups_after(cups: &mut Cups, new_cups: CupSlice, position: usize) {
-    let insert_position = position + 1;
-
-    for cup in new_cups.0.into_iter().rev() {
-        cups.0.insert(insert_position, cup);
+impl ToString for Cups {
+    fn to_string(&self) -> String {
+        cups_to_string(&self, self.head)
     }
 }
 
-fn game_step(cups: &mut Cups, cups_len: usize, cursor: usize) -> usize {
-    let current_cup = cups.0[cursor];
-    let cursor_str = format!("[C: {}]", cursor + 1);
-    // println!(
-    //     "{} Taking cup {:?} from {:?}",
-    //     cursor_str, current_cup, cups
-    // );
-    let next_three = remove_three_cups(cups, cursor + 1);
-    // println!(
-    //     "{} Picking three cups {:?}, remaining {:?}",
-    //     cursor_str, next_three, cups
-    // );
-    let destination_cup_index = find_destination_cup_position(cups, cups_len + 2, current_cup.0);
-    // println!(
-    //     "{} Destination cup index {} ({:?})",
-    //     cursor_str, destination_cup_index, cups.0[destination_cup_index]
-    // );
-    push_three_cups_after(cups, next_three, destination_cup_index);
-    // println!(
-    //     "{} Pushing cups at index {}, now {:?}",
-    //     cursor_str, destination_cup_index, cups
-    // );
-    let new_cursor = (get_cup_position(cups, current_cup.0) + 1).rem_euclid(cups_len);
-    // println!("{} New cursor {}", cursor_str, new_cursor);
-    // println!();
+/// Join cups to string, starting with `head`.
+///
+/// # Arguments
+///
+/// * `cups` - Cups
+/// * `head` - Starting head
+pub fn cups_to_string(cups: &Cups, head: Cup) -> String {
+    let mut output = String::new();
+    let mut cursor = head;
+    output.push_str(&cursor.to_string());
 
-    new_cursor
+    for _ in 1..cups.data.len() - 1 {
+        cursor = cups.next(cursor);
+        if cursor == head {
+            break;
+        }
+
+        output.push_str(&cursor.to_string());
+    }
+
+    output
 }
 
-fn pick_cups_after_1(cups: &Cups) -> CupSlice {
-    let cups_len = cups.0.len();
+/// Parse cups.
+///
+/// # Arguments
+///
+/// * `input` - Input string
+fn parse_cups(input: &str) -> Cups {
     let mut output = Vec::new();
-    let cup_position = get_cup_position(cups, 1);
-    let mut cursor = (cup_position + 1).rem_euclid(cups_len);
+    let chars: Vec<_> = input
+        .trim()
+        .chars()
+        .map(|c| c.to_digit(10).unwrap() as Cup)
+        .collect();
+    output.resize(chars.len() + 1, 0);
 
-    while cursor != cup_position {
-        output.push(cups.0[cursor]);
-        cursor = (cursor + 1).rem_euclid(cups_len);
+    // Link each other
+    for w in chars.windows(2) {
+        output[w[0]] = w[1];
     }
 
-    CupSlice(output)
+    // Link last with first
+    output[chars[chars.len() - 1]] = chars[0];
+
+    Cups {
+        head: chars[0],
+        data: output,
+    }
 }
 
-fn run_steps(cups: &mut Cups, n: usize, cursor: usize) -> usize {
-    let cups_len = cups.0.len();
-    let mut current_cursor = cursor;
-    let mut c = n / 100;
-    if c == 0 {
-        c = 1;
+/// Prepare million cups.
+///
+/// # Arguments
+///
+/// * `input` - Input string
+#[allow(clippy::needless_range_loop)]
+pub fn prepare_million_cups(input: &str) -> Cups {
+    let mut output = Vec::new();
+    let chars: Vec<_> = input
+        .trim()
+        .chars()
+        .map(|c| c.to_digit(10).unwrap() as Cup)
+        .collect();
+    output.resize(1_000_000 + 1, 0);
+
+    for w in chars.windows(2) {
+        output[w[0]] = w[1];
     }
 
-    for s in 0..n {
-        if s % c == 0 {
-            println!("Step {} / {}", s + 1, n);
-        }
-
-        current_cursor = game_step(cups, cups_len, current_cursor);
+    // Now add millions
+    for i in 10..=1_000_000 {
+        output[i] = i + 1
     }
 
-    current_cursor
+    // Link last char with 10
+    output[chars[chars.len() - 1]] = 10;
+
+    // Link last with first
+    let output_len = output.len();
+    output[output_len - 1] = chars[0];
+
+    Cups {
+        head: chars[0],
+        data: output,
+    }
+}
+
+/// Execute a game step.
+///
+/// # Arguments
+///
+/// * `cups` - Cups
+pub fn game_step(cups: &mut Cups) {
+    // Get current cursor
+    let head = cups.head;
+
+    // Get next three
+    let t0 = cups.next(head);
+    let t1 = cups.next(t0);
+    let t2 = cups.next(t1);
+    let next = cups.next(t2);
+
+    // Get destination cup
+    let mut dest = cups.prev_cup(head);
+    while dest == t0 || dest == t1 || dest == t2 {
+        dest = cups.prev_cup(dest);
+    }
+
+    // Update links
+    cups.set_next(head, next);
+    cups.set_next(t2, cups.next(dest));
+    cups.set_next(dest, t0);
+    cups.head = next;
+}
+
+/// Run `n` steps of simulation.
+///
+/// # Arguments
+///
+/// * `cups` - Cups
+/// * `n` - Steps
+pub fn run_steps(cups: &mut Cups, n: usize) {
+    for _ in 0..n {
+        game_step(cups);
+    }
 }
 
 #[cfg(test)]
@@ -261,62 +298,48 @@ mod tests {
     use super::*;
 
     const EX1_OUTPUT: &str = "27865934";
+    const EX2_OUTPUT: usize = 170_836_011_000;
 
     const SAMPLE: &str = "389125467";
 
     #[test]
     fn test_parse_cups() {
         let cups = parse_cups(SAMPLE);
-        assert_eq!(string_cups(&cups), SAMPLE);
-    }
-
-    #[test]
-    fn test_one_game_step() {
-        let mut cups = parse_cups(SAMPLE);
-        let cups_len = cups.0.len();
-
-        // Run one step
-        let new_cursor = game_step(&mut cups, cups_len, 0);
-        assert_eq!(new_cursor, 1);
-        assert_eq!(string_cups(&cups), "328915467");
+        assert_eq!(cups.to_string(), SAMPLE);
     }
 
     #[test]
     fn test_10_game_steps() {
         let mut cups = parse_cups(SAMPLE);
 
-        run_steps(&mut cups, 10, 0);
-        assert_eq!(string_cupslice(&pick_cups_after_1(&cups)), "92658374");
+        run_steps(&mut cups, 10);
+        assert_eq!(cups.to_string_from_one(), "92658374");
     }
 
     #[test]
     fn test_100_game_steps() {
         let mut cups = parse_cups(SAMPLE);
 
-        run_steps(&mut cups, 100, 0);
-        assert_eq!(string_cupslice(&pick_cups_after_1(&cups)), "67384529");
+        run_steps(&mut cups, 100);
+        assert_eq!(cups.to_string_from_one(), "67384529");
     }
 
-    // #[test]
-    // fn test_million() {
-    //     let mut cups = parse_cups(SAMPLE);
-    //     println!("Preparing 1_000_000 cups");
-    //     prepare_million_cups(&mut cups);
+    #[test]
+    fn test_million() {
+        let mut cups = prepare_million_cups(SAMPLE);
+        run_steps(&mut cups, 10_000_000);
 
-    //     println!("Running 10_000_000 steps");
-    //     run_steps(&mut cups, 10_000_000, 0);
-
-    //     println!("Searching 1...");
-    //     let one = get_cup_position(&cups, 1);
-    //     let one_one = (one + 1).rem_euclid(1_000_000);
-    //     let one_two = (one + 2).rem_euclid(1_000_000);
-
-    //     assert_eq!(cups.0[one_one], Cup(934_001));
-    //     assert_eq!(cups.0[one_two], Cup(159_792));
-    // }
+        assert_eq!(cups.next(1), 934_001);
+        assert_eq!(cups.next(cups.next(1)), 159_792);
+    }
 
     #[test]
     fn test_run_ex1() {
         assert_eq!(run_ex1(), EX1_OUTPUT);
+    }
+
+    #[test]
+    fn test_run_ex2() {
+        assert_eq!(run_ex2(), EX2_OUTPUT);
     }
 }
