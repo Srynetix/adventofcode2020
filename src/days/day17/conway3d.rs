@@ -2,7 +2,8 @@
 
 use std::collections::HashSet;
 
-use super::common::{Cell, Vec3};
+use super::common::Cell;
+use crate::common::Vec3;
 
 /// Game of Life in an 'infinite' 3D grid
 #[derive(Debug, Default)]
