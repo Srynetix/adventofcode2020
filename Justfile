@@ -25,10 +25,10 @@ lint-err:
 # Tests
 
 test:
-	cargo test --all
+	cargo test --release --all
 
 test-day day:
-	cargo test days::day{{ day }} {{ if opt_no_capture == "true" { "-- --nocapture" } else { "" } }}
+	cargo test --release days::day{{ day }} {{ if opt_no_capture == "true" { "-- --nocapture" } else { "" } }}
 
 ###############
 # Documentation
@@ -44,12 +44,12 @@ doc-open:
 
 # Build app
 build:
-	cargo build
+	cargo build --release
 
 # Run all days
 run-all:
-	cargo run -- run-all
+	cargo run --release -- run-all
 
 # Run day
 run day:
-	cargo run -- run {{ day }}
+	cargo run --release -- run {{ day }}
