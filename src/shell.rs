@@ -65,6 +65,7 @@ fn run_day_wrapper(d: usize) -> Result<(), Error> {
         21 => run_day(d, days::day21::run_ex1, days::day21::run_ex2),
         22 => run_day(d, days::day22::run_ex1, days::day22::run_ex2),
         23 => run_day(d, days::day23::run_ex1, days::day23::run_ex2),
+        24 => run_day(d, days::day24::run_ex1, days::day24::run_ex2),
         d if d <= 25 => return Err(Error::DayNotImplemented(d)),
         d => return Err(Error::UnknownDay(d)),
     }
