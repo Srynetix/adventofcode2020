@@ -13,4 +13,10 @@
 |**1 - 6**||&mdash;|:star::star:|:star::star:|:star::star:|:star::star:|:star::star:|:star::star:|
 |**7 - 13**||:star::star:|:star::star:|:star::star:|:star::star:|:star::star:|:star::star:|:star::star:|
 |**14 - 20**||:star::star:|:star::star:|:star::star:|:star::star:|:star::star:|:star::star:|:star::star:|
-|**21 - 25**||:star::star:|:star::star:|:star::star:|:star::star:|:clock2:|&mdash;|&mdash;|
+|**21 - 25**||:star::star:|:star::star:|:star::star:|:star::star:|:star::star:|&mdash;|&mdash;|
+
+> You spend all fifty stars to cover the room deposit!
+>
+> As you fix the soft serve machine, Santa offers you a ride in his sleigh; maybe the resort has a chimney you can use...
+
+:tada:
