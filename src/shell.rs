@@ -7,8 +7,6 @@ use super::days;
 
 #[derive(Debug, Error)]
 enum Error {
-    #[error("Day {0} not implemented yet")]
-    DayNotImplemented(usize),
     #[error("Day {0} is not in Advent of Code range (1-25)")]
     UnknownDay(usize),
 }
@@ -66,7 +64,7 @@ fn run_day_wrapper(d: usize) -> Result<(), Error> {
         22 => run_day(d, days::day22::run_ex1, days::day22::run_ex2),
         23 => run_day(d, days::day23::run_ex1, days::day23::run_ex2),
         24 => run_day(d, days::day24::run_ex1, days::day24::run_ex2),
-        d if d <= 25 => return Err(Error::DayNotImplemented(d)),
+        25 => run_day(d, days::day25::run_ex, || "N/A"),
         d => return Err(Error::UnknownDay(d)),
     }
 
