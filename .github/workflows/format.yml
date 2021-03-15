@@ -1,0 +1,15 @@
+name: Check code style
+
+on: [push]
+
+jobs:
+  format:
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: hecrj/setup-rust-action@v1
+      with:
+        rust-version: 1.52.1
+        components: rustfmt,clippy
+    - uses: actions/checkout@v2
+    - name: Check code style
+      run: cargo fmt --all -- --check

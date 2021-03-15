@@ -666,7 +666,7 @@ fn run_recursive_game(
     }
 
     // Prepare rounds for game
-    memory.rounds.entry(game_number).or_insert(vec![]);
+    memory.rounds.entry(game_number).or_insert_with(Vec::new);
 
     loop {
         if let GameStepResult::Finished(player) =

@@ -32,9 +32,9 @@ impl From<(isize, isize)> for Vec2 {
     }
 }
 
-impl Into<(isize, isize)> for Vec2 {
-    fn into(self) -> (isize, isize) {
-        (self.x, self.y)
+impl From<Vec2> for (isize, isize) {
+    fn from(vec: Vec2) -> Self {
+        (vec.x, vec.y)
     }
 }
 
@@ -73,9 +73,9 @@ impl From<(isize, isize, isize)> for Vec3 {
     }
 }
 
-impl Into<(isize, isize, isize)> for Vec3 {
-    fn into(self) -> (isize, isize, isize) {
-        (self.x, self.y, self.z)
+impl From<Vec3> for (isize, isize, isize) {
+    fn from(vec: Vec3) -> Self {
+        (vec.x, vec.y, vec.z)
     }
 }
 
@@ -119,8 +119,8 @@ impl From<(isize, isize, isize, isize)> for Vec4 {
     }
 }
 
-impl Into<(isize, isize, isize, isize)> for Vec4 {
-    fn into(self) -> (isize, isize, isize, isize) {
-        (self.x, self.y, self.z, self.t)
+impl From<Vec4> for (isize, isize, isize, isize) {
+    fn from(vec: Vec4) -> Self {
+        (vec.x, vec.y, vec.z, vec.t)
     }
 }

@@ -148,7 +148,6 @@
 
 use itertools::Itertools;
 use std::collections::{HashMap, HashSet, VecDeque};
-use std::iter::FromIterator;
 
 const INPUT_VALUES: &str = include_str!("input.txt");
 
@@ -218,7 +217,7 @@ impl JoltAnalyzer {
     /// Count adapter permutations.
     pub fn count_adapter_permutations(&self) -> usize {
         let max_value = self.data.last().unwrap();
-        let data_set: HashSet<usize> = HashSet::from_iter(self.data.iter().copied());
+        let data_set: HashSet<usize> = self.data.iter().copied().collect();
         let mut memory: HashMap<usize, usize> = HashMap::new();
         Self::count_inner_adapter_permutations(&data_set, 0, *max_value, &mut memory)
     }

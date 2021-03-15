@@ -124,9 +124,7 @@ impl Conway3D {
                     let neighbors_count = self.get_active_neighbors_count(position);
 
                     let new_state = match old_state {
-                        Cell::Active if neighbors_count < 2 || neighbors_count > 3 => {
-                            Cell::Inactive
-                        }
+                        Cell::Active if !(2..=3).contains(&neighbors_count) => Cell::Inactive,
                         Cell::Inactive if neighbors_count == 3 => Cell::Active,
                         _ => old_state,
                     };

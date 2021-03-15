@@ -503,9 +503,8 @@ impl SeatLayout {
             let new_stats = self.step();
             if new_stats == last_stats {
                 return new_stats;
-            } else {
-                last_stats = new_stats;
             }
+            last_stats = new_stats;
         }
     }
 
@@ -517,9 +516,8 @@ impl SeatLayout {
             let new_stats = self.step_with_visibility();
             if new_stats == last_stats {
                 return new_stats;
-            } else {
-                last_stats = new_stats;
             }
+            last_stats = new_stats;
         }
     }
 
