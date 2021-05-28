@@ -1,0 +1,48 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Day 5: Binary Boarding"><meta name="keywords" content="rust, rustlang, rust-lang, day05"><title>adventofcode2020::days::day05 - Rust</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+<link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png">
+<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc mod"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../adventofcode2020/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a><p class="location">Module day05</p><div class="sidebar-elems"><div class="block items"><ul><li><a href="#structs">Structs</a></li><li><a href="#functions">Functions</a></li></ul></div><p class="location"><a href="../../index.html">adventofcode2020</a>::<wbr><a href="../index.html">days</a></p><div id="sidebar-vars" data-name="day05" data-ty="mod" data-relpath="../"></div><script defer src="../sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+                <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Module <a href="../../index.html">adventofcode2020</a>::<wbr><a href="../index.html">days</a>::<wbr><a class="mod" href="">day05</a></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../../../src/adventofcode2020/days/day05/mod.rs.html#1-200" title="goto source code">[src]</a></span></h1><div class="docblock"><h1 id="day-5-binary-boarding" class="section-header"><a href="#day-5-binary-boarding">Day 5: Binary Boarding</a></h1>
+<p>You board your plane only to discover a new problem: you dropped your boarding pass! You aren’t sure which seat is yours, and all of the flight attendants are busy with the flood of people that suddenly made it through passport control.</p>
+<p>You write a quick program to use your phone’s camera to scan all of the nearby boarding passes (your puzzle input); perhaps you can find your seat through process of elimination.</p>
+<p>Instead of zones or groups, this airline uses binary space partitioning to seat people. A seat might be specified like FBFBBFFRLR, where F means “front”, B means “back”, L means “left”, and R means “right”.</p>
+<p>The first 7 characters will either be F or B; these specify exactly one of the 128 rows on the plane (numbered 0 through 127). Each letter tells you which half of a region the given seat is in. Start with the whole list of rows; the first letter indicates whether the seat is in the front (0 through 63) or the back (64 through 127). The next letter indicates which half of that region the seat is in, and so on until you’re left with exactly one row.</p>
+<p>For example, consider just the first seven characters of FBFBBFFRLR:</p>
+<ul>
+<li>Start by considering the whole range, rows 0 through 127.</li>
+<li>F means to take the lower half, keeping rows 0 through 63.</li>
+<li>B means to take the upper half, keeping rows 32 through 63.</li>
+<li>F means to take the lower half, keeping rows 32 through 47.</li>
+<li>B means to take the upper half, keeping rows 40 through 47.</li>
+<li>B keeps rows 44 through 47.</li>
+<li>F keeps rows 44 through 45.</li>
+<li>The final F keeps the lower of the two, row 44.</li>
+</ul>
+<p>The last three characters will be either L or R; these specify exactly one of the 8 columns of seats on the plane (numbered 0 through 7). The same process as above proceeds again, this time with only three steps. L means to keep the lower half, while R means to keep the upper half.</p>
+<p>For example, consider just the last 3 characters of FBFBBFFRLR:</p>
+<ul>
+<li>Start by considering the whole range, columns 0 through 7.</li>
+<li>R means to take the upper half, keeping columns 4 through 7.</li>
+<li>L means to take the lower half, keeping columns 4 through 5.</li>
+<li>The final R keeps the upper of the two, column 5.</li>
+</ul>
+<p>So, decoding FBFBBFFRLR reveals that it is the seat at row 44, column 5.</p>
+<p>Every seat also has a unique seat ID: multiply the row by 8, then add the column. In this example, the seat has ID 44 * 8 + 5 = 357.</p>
+<p>Here are some other boarding passes:</p>
+<ul>
+<li>BFFFBBFRRR: row 70, column 7, seat ID 567.</li>
+<li>FFFBBBFRRR: row 14, column 7, seat ID 119.</li>
+<li>BBFFBBFRLL: row 102, column 4, seat ID 820.</li>
+</ul>
+<p>As a sanity check, look through your list of boarding passes. What is the highest seat ID on a boarding pass?</p>
+<h1 id="part-two" class="section-header"><a href="#part-two">Part Two</a></h1>
+<p>Ding! The “fasten seat belt” signs have turned on. Time to find your seat.</p>
+<p>It’s a completely full flight, so your seat should be the only missing boarding pass in your list. However, there’s a catch: some of the seats at the very front and back of the plane don’t exist on this aircraft, so they’ll be missing from your list as well.</p>
+<p>Your seat wasn’t at the very front or back, though; the seats with IDs +1 and -1 from yours will be in your list.</p>
+<p>What is the ID of your seat?</p>
+</div><h2 id="structs" class="section-header"><a href="#structs">Structs</a></h2>
+<table><tr class="module-item"><td><a class="struct" href="struct.BoardingPass.html" title="adventofcode2020::days::day05::BoardingPass struct">BoardingPass</a></td><td class="docblock-short"><p>Boarding pass.</p>
+</td></tr></table><h2 id="functions" class="section-header"><a href="#functions">Functions</a></h2>
+<table><tr class="module-item"><td><a class="fn" href="fn.run_ex1.html" title="adventofcode2020::days::day05::run_ex1 fn">run_ex1</a></td><td class="docblock-short"><p>Part one answer.</p>
+</td></tr><tr class="module-item"><td><a class="fn" href="fn.run_ex2.html" title="adventofcode2020::days::day05::run_ex2 fn">run_ex2</a></td><td class="docblock-short"><p>Part two answer.</p>
+</td></tr></table></section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="adventofcode2020" data-search-js="../../../search-index.js"></div>
+    <script src="../../../main.js"></script></body></html>

@@ -1,0 +1,56 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Day 15: Rambunctious Recitation"><meta name="keywords" content="rust, rustlang, rust-lang, day15"><title>adventofcode2020::days::day15 - Rust</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+<link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png">
+<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc mod"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../adventofcode2020/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a><p class="location">Module day15</p><div class="sidebar-elems"><div class="block items"><ul><li><a href="#structs">Structs</a></li><li><a href="#functions">Functions</a></li></ul></div><p class="location"><a href="../../index.html">adventofcode2020</a>::<wbr><a href="../index.html">days</a></p><div id="sidebar-vars" data-name="day15" data-ty="mod" data-relpath="../"></div><script defer src="../sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+                <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Module <a href="../../index.html">adventofcode2020</a>::<wbr><a href="../index.html">days</a>::<wbr><a class="mod" href="">day15</a></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../../../src/adventofcode2020/days/day15/mod.rs.html#1-187" title="goto source code">[src]</a></span></h1><div class="docblock"><h1 id="day-15-rambunctious-recitation" class="section-header"><a href="#day-15-rambunctious-recitation">Day 15: Rambunctious Recitation</a></h1>
+<p>You catch the airport shuttle and try to book a new flight to your vacation island. Due to the storm, all direct flights have been cancelled, but a route is available to get around the storm. You take it.</p>
+<p>While you wait for your flight, you decide to check in with the Elves back at the North Pole. They’re playing a memory game and are ever so excited to explain the rules!</p>
+<p>In this game, the players take turns saying numbers. They begin by taking turns reading from a list of starting numbers (your puzzle input). Then, each turn consists of considering the most recently spoken number:</p>
+<ul>
+<li>If that was the first time the number has been spoken, the current player says 0.</li>
+<li>Otherwise, the number had been spoken before; the current player announces how many turns apart the number is from when it was previously spoken.</li>
+</ul>
+<p>So, after the starting numbers, each turn results in that player speaking aloud either 0 (if the last number is new) or an age (if the last number is a repeat).</p>
+<p>For example, suppose the starting numbers are 0,3,6:</p>
+<ul>
+<li>Turn 1: The 1st number spoken is a starting number, 0.</li>
+<li>Turn 2: The 2nd number spoken is a starting number, 3.</li>
+<li>Turn 3: The 3rd number spoken is a starting number, 6.</li>
+<li>Turn 4: Now, consider the last number spoken, 6. Since that was the first time the number had been spoken, the 4th number spoken is 0.</li>
+<li>Turn 5: Next, again consider the last number spoken, 0. Since it had been spoken before, the next number to speak is the difference between the turn number when it was last spoken (the previous turn, 4) and the turn number of the time it was most recently spoken before then (turn 1). Thus, the 5th number spoken is 4 - 1, 3.</li>
+<li>Turn 6: The last number spoken, 3 had also been spoken before, most recently on turns 5 and 2. So, the 6th number spoken is 5 - 2, 3.</li>
+<li>Turn 7: Since 3 was just spoken twice in a row, and the last two turns are 1 turn apart, the 7th number spoken is 1.</li>
+<li>Turn 8: Since 1 is new, the 8th number spoken is 0.</li>
+<li>Turn 9: 0 was last spoken on turns 8 and 4, so the 9th number spoken is the difference between them, 4.</li>
+<li>Turn 10: 4 is new, so the 10th number spoken is 0.</li>
+</ul>
+<p>(The game ends when the Elves get sick of playing or dinner is ready, whichever comes first.)</p>
+<p>Their question for you is: what will be the 2020th number spoken? In the example above, the 2020th number spoken will be 436.</p>
+<p>Here are a few more examples:</p>
+<ul>
+<li>Given the starting numbers 1,3,2, the 2020th number spoken is 1.</li>
+<li>Given the starting numbers 2,1,3, the 2020th number spoken is 10.</li>
+<li>Given the starting numbers 1,2,3, the 2020th number spoken is 27.</li>
+<li>Given the starting numbers 2,3,1, the 2020th number spoken is 78.</li>
+<li>Given the starting numbers 3,2,1, the 2020th number spoken is 438.</li>
+<li>Given the starting numbers 3,1,2, the 2020th number spoken is 1836.</li>
+</ul>
+<p>Given your starting numbers, what will be the 2020th number spoken?</p>
+<h1 id="part-two" class="section-header"><a href="#part-two">Part Two</a></h1>
+<p>Impressed, the Elves issue you a challenge: determine the 30000000th number spoken. For example, given the same starting numbers as above:</p>
+<ul>
+<li>Given 0,3,6, the 30000000th number spoken is 175594.</li>
+<li>Given 1,3,2, the 30000000th number spoken is 2578.</li>
+<li>Given 2,1,3, the 30000000th number spoken is 3544142.</li>
+<li>Given 1,2,3, the 30000000th number spoken is 261214.</li>
+<li>Given 2,3,1, the 30000000th number spoken is 6895259.</li>
+<li>Given 3,2,1, the 30000000th number spoken is 18.</li>
+<li>Given 3,1,2, the 30000000th number spoken is 362.</li>
+</ul>
+<p>Given your starting numbers, what will be the 30000000th number spoken?</p>
+</div><h2 id="structs" class="section-header"><a href="#structs">Structs</a></h2>
+<table><tr class="module-item"><td><a class="struct" href="struct.MemoryGame.html" title="adventofcode2020::days::day15::MemoryGame struct">MemoryGame</a></td><td class="docblock-short"><p>Memory game</p>
+</td></tr></table><h2 id="functions" class="section-header"><a href="#functions">Functions</a></h2>
+<table><tr class="module-item"><td><a class="fn" href="fn.run_ex1.html" title="adventofcode2020::days::day15::run_ex1 fn">run_ex1</a></td><td class="docblock-short"><p>Part one answer.</p>
+</td></tr><tr class="module-item"><td><a class="fn" href="fn.run_ex2.html" title="adventofcode2020::days::day15::run_ex2 fn">run_ex2</a></td><td class="docblock-short"><p>Part two answer.</p>
+</td></tr></table></section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="adventofcode2020" data-search-js="../../../search-index.js"></div>
+    <script src="../../../main.js"></script></body></html>

@@ -1,0 +1,266 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Day 20: Jurassic Jigsaw"><meta name="keywords" content="rust, rustlang, rust-lang, day20"><title>adventofcode2020::days::day20 - Rust</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+<link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png">
+<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc mod"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../adventofcode2020/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a><p class="location">Module day20</p><div class="sidebar-elems"><div class="block items"><ul><li><a href="#structs">Structs</a></li><li><a href="#enums">Enums</a></li><li><a href="#functions">Functions</a></li><li><a href="#types">Type Definitions</a></li></ul></div><p class="location"><a href="../../index.html">adventofcode2020</a>::<wbr><a href="../index.html">days</a></p><div id="sidebar-vars" data-name="day20" data-ty="mod" data-relpath="../"></div><script defer src="../sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+                <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Module <a href="../../index.html">adventofcode2020</a>::<wbr><a href="../index.html">days</a>::<wbr><a class="mod" href="">day20</a></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../../../src/adventofcode2020/days/day20/mod.rs.html#1-1453" title="goto source code">[src]</a></span></h1><div class="docblock"><h1 id="day-20-jurassic-jigsaw" class="section-header"><a href="#day-20-jurassic-jigsaw">Day 20: Jurassic Jigsaw</a></h1>
+<p>The high-speed train leaves the forest and quickly carries you south. You can even see a desert in the distance! Since you have some spare time, you might as well see if there was anything interesting in the image the Mythical Information Bureau satellite captured.</p>
+<p>After decoding the satellite messages, you discover that the data actually contains many small images created by the satellite’s camera array. The camera array consists of many cameras; rather than produce a single square image, they produce many smaller square image tiles that need to be reassembled back into a single image.</p>
+<p>Each camera in the camera array returns a single monochrome image tile with a random unique ID number. The tiles (your puzzle input) arrived in a random order.</p>
+<p>Worse yet, the camera array appears to be malfunctioning: each image tile has been rotated and flipped to a random orientation. Your first task is to reassemble the original image by orienting the tiles so they fit together.</p>
+<p>To show how the tiles should be reassembled, each tile’s image data includes a border that should line up exactly with its adjacent tiles. All tiles have this border, and the border lines up exactly when the tiles are both oriented correctly. Tiles at the edge of the image also have this border, but the outermost edges won’t line up with any other tiles.</p>
+<p>For example, suppose you have the following nine tiles:</p>
+<pre><code class="language-text">Tile 2311:
+..##.#..#.
+##..#.....
+#...##..#.
+####.#...#
+##.##.###.
+##...#.###
+.#.#.#..##
+..#....#..
+###...#.#.
+..###..###
+
+Tile 1951:
+#.##...##.
+#.####...#
+.....#..##
+#...######
+.##.#....#
+.###.#####
+###.##.##.
+.###....#.
+..#.#..#.#
+#...##.#..
+
+Tile 1171:
+####...##.
+#..##.#..#
+##.#..#.#.
+.###.####.
+..###.####
+.##....##.
+.#...####.
+#.##.####.
+####..#...
+.....##...
+
+Tile 1427:
+###.##.#..
+.#..#.##..
+.#.##.#..#
+#.#.#.##.#
+....#...##
+...##..##.
+...#.#####
+.#.####.#.
+..#..###.#
+..##.#..#.
+
+Tile 1489:
+##.#.#....
+..##...#..
+.##..##...
+..#...#...
+#####...#.
+#..#.#.#.#
+...#.#.#..
+##.#...##.
+..##.##.##
+###.##.#..
+
+Tile 2473:
+#....####.
+#..#.##...
+#.##..#...
+######.#.#
+.#...#.#.#
+.#########
+.###.#..#.
+########.#
+##...##.#.
+..###.#.#.
+
+Tile 2971:
+..#.#....#
+#...###...
+#.#.###...
+##.##..#..
+.#####..##
+.#..####.#
+#..#.#..#.
+..####.###
+..#.#.###.
+...#.#.#.#
+
+Tile 2729:
+...#.#.#.#
+####.#....
+..#.#.....
+....#..#.#
+.##..##.#.
+.#.####...
+####.#.#..
+##.####...
+##..#.##..
+#.##...##.
+
+Tile 3079:
+#.#.#####.
+.#..######
+..#.......
+######....
+####.#..#.
+.#...#.##.
+#.#####.##
+..#.###...
+..#.......
+..#.###...
+</code></pre>
+<p>By rotating, flipping, and rearranging them, you can find a square arrangement that causes all adjacent borders to line up:</p>
+<pre><code class="language-text">#...##.#.. ..###..### #.#.#####.
+..#.#..#.# ###...#.#. .#..######
+.###....#. ..#....#.. ..#.......
+###.##.##. .#.#.#..## ######....
+.###.##### ##...#.### ####.#..#.
+.##.#....# ##.##.###. .#...#.##.
+#...###### ####.#...# #.#####.##
+.....#..## #...##..#. ..#.###...
+#.####...# ##..#..... ..#.......
+#.##...##. ..##.#..#. ..#.###...
+
+#.##...##. ..##.#..#. ..#.###...
+##..#.##.. ..#..###.# ##.##....#
+##.####... .#.####.#. ..#.###..#
+####.#.#.. ...#.##### ###.#..###
+.#.####... ...##..##. .######.##
+.##..##.#. ....#...## #.#.#.#...
+....#..#.# #.#.#.##.# #.###.###.
+..#.#..... .#.##.#..# #.###.##..
+####.#.... .#..#.##.. .######...
+...#.#.#.# ###.##.#.. .##...####
+
+...#.#.#.# ###.##.#.. .##...####
+..#.#.###. ..##.##.## #..#.##..#
+..####.### ##.#...##. .#.#..#.##
+#..#.#..#. ...#.#.#.. .####.###.
+.#..####.# #..#.#.#.# ####.###..
+.#####..## #####...#. .##....##.
+##.##..#.. ..#...#... .####...#.
+#.#.###... .##..##... .####.##.#
+#...###... ..##...#.. ...#..####
+..#.#....# ##.#.#.... ...##.....
+</code></pre>
+<p>For reference, the IDs of the above tiles are:</p>
+<pre><code class="language-text">1951    2311    3079
+2729    1427    2473
+2971    1489    1171
+</code></pre>
+<p>To check that you’ve assembled the image correctly, multiply the IDs of the four corner tiles together. If you do this with the assembled tiles from the example above, you get 1951 * 3079 * 2971 * 1171 = 20899048083289.</p>
+<p>Assemble the tiles into an image. What do you get if you multiply together the IDs of the four corner tiles?</p>
+<h1 id="part-two" class="section-header"><a href="#part-two">Part Two</a></h1>
+<p>Now, you’re ready to check the image for sea monsters.</p>
+<p>The borders of each tile are not part of the actual image; start by removing them.</p>
+<p>In the example above, the tiles become:</p>
+<pre><code class="language-text">.#.#..#. ##...#.# #..#####
+###....# .#....#. .#......
+##.##.## #.#.#..# #####...
+###.#### #...#.## ###.#..#
+##.#.... #.##.### #...#.##
+...##### ###.#... .#####.#
+....#..# ...##..# .#.###..
+.####... #..#.... .#......
+
+#..#.##. .#..###. #.##....
+#.####.. #.####.# .#.###..
+###.#.#. ..#.#### ##.#..##
+#.####.. ..##..## ######.#
+##..##.# ...#...# .#.#.#..
+...#..#. .#.#.##. .###.###
+.#.#.... #.##.#.. .###.##.
+###.#... #..#.##. ######..
+
+.#.#.### .##.##.# ..#.##..
+.####.## #.#...## #.#..#.#
+..#.#..# ..#.#.#. ####.###
+#..####. ..#.#.#. ###.###.
+#####..# ####...# ##....##
+#.##..#. .#...#.. ####...#
+.#.###.. ##..##.. ####.##.
+...###.. .##...#. ..#..###
+</code></pre>
+<p>Remove the gaps to form the actual image:</p>
+<pre><code class="language-text">.#.#..#.##...#.##..#####
+###....#.#....#..#......
+##.##.###.#.#..######...
+###.#####...#.#####.#..#
+##.#....#.##.####...#.##
+...########.#....#####.#
+....#..#...##..#.#.###..
+.####...#..#.....#......
+#..#.##..#..###.#.##....
+#.####..#.####.#.#.###..
+###.#.#...#.######.#..##
+#.####....##..########.#
+##..##.#...#...#.#.#.#..
+...#..#..#.#.##..###.###
+.#.#....#.##.#...###.##.
+###.#...#..#.##.######..
+.#.#.###.##.##.#..#.##..
+.####.###.#...###.#..#.#
+..#.#..#..#.#.#.####.###
+#..####...#.#.#.###.###.
+#####..#####...###....##
+#.##..#..#...#..####...#
+.#.###..##..##..####.##.
+...###...##...#...#..###
+</code></pre>
+<p>Now, you’re ready to search for sea monsters! Because your image is monochrome, a sea monster will look like this:</p>
+<pre><code class="language-text">                  #
+#    ##    ##    ###
+ #  #  #  #  #  #
+</code></pre>
+<p>When looking for this pattern in the image, the spaces can be anything; only the # need to match. Also, you might need to rotate or flip your image before it’s oriented correctly to find sea monsters. In the above image, after flipping and rotating it to the appropriate orientation, there are two sea monsters (marked with O):</p>
+<pre><code class="language-text">.####...#####..#...###..
+#####..#..#.#.####..#.#.
+.#.#...#.###...#.##.O#..
+#.O.##.OO#.#.OO.##.OOO##
+..#O.#O#.O##O..O.#O##.##
+...#.#..##.##...#..#..##
+#.##.#..#.#..#..##.#.#..
+.###.##.....#...###.#...
+#.####.#.#....##.#..#.#.
+##...#..#....#..#...####
+..#.##...###..#.#####..#
+....#.##.#.#####....#...
+..##.##.###.....#.##..#.
+#...#...###..####....##.
+.#.##...#.##.#.#.###...#
+#.###.#..####...##..#...
+#.###...#.##...#.##O###.
+.O##.#OO.###OO##..OOO##.
+..O#.O..O..O.#O##O##.###
+#.#..##.########..#..##.
+#.#####..#.#...##..#....
+#....##..#.#########..##
+#...#.....#..##...###.##
+#..###....##.#...##.##.#
+</code></pre>
+<p>Determine how rough the waters are in the sea monsters’ habitat by counting the number of # that are not part of a sea monster. In the above example, the habitat’s water roughness is 273.</p>
+</div><h2 id="structs" class="section-header"><a href="#structs">Structs</a></h2>
+<table><tr class="module-item"><td><a class="struct" href="struct.Puzzle.html" title="adventofcode2020::days::day20::Puzzle struct">Puzzle</a></td><td class="docblock-short"><p>Puzzle.</p>
+</td></tr><tr class="module-item"><td><a class="struct" href="struct.PuzzleBuilder.html" title="adventofcode2020::days::day20::PuzzleBuilder struct">PuzzleBuilder</a></td><td class="docblock-short"><p>Puzzle builder.</p>
+</td></tr><tr class="module-item"><td><a class="struct" href="struct.Tile.html" title="adventofcode2020::days::day20::Tile struct">Tile</a></td><td class="docblock-short"><p>Tile.</p>
+</td></tr><tr class="module-item"><td><a class="struct" href="struct.TileManipulator.html" title="adventofcode2020::days::day20::TileManipulator struct">TileManipulator</a></td><td class="docblock-short"><p>Tile manipulator</p>
+</td></tr><tr class="module-item"><td><a class="struct" href="struct.TileMatcher.html" title="adventofcode2020::days::day20::TileMatcher struct">TileMatcher</a></td><td class="docblock-short"><p>Tile matcher.</p>
+</td></tr><tr class="module-item"><td><a class="struct" href="struct.TileParser.html" title="adventofcode2020::days::day20::TileParser struct">TileParser</a></td><td class="docblock-short"><p>Tile parser.</p>
+</td></tr></table><h2 id="enums" class="section-header"><a href="#enums">Enums</a></h2>
+<table><tr class="module-item"><td><a class="enum" href="enum.BorderDirection.html" title="adventofcode2020::days::day20::BorderDirection enum">BorderDirection</a></td><td class="docblock-short"><p>Border direction.</p>
+</td></tr><tr class="module-item"><td><a class="enum" href="enum.TileFlip.html" title="adventofcode2020::days::day20::TileFlip enum">TileFlip</a></td><td class="docblock-short"><p>Tile flip.</p>
+</td></tr><tr class="module-item"><td><a class="enum" href="enum.TileRotation.html" title="adventofcode2020::days::day20::TileRotation enum">TileRotation</a></td><td class="docblock-short"><p>Tile rotation (counter-clockwise)</p>
+</td></tr></table><h2 id="functions" class="section-header"><a href="#functions">Functions</a></h2>
+<table><tr class="module-item"><td><a class="fn" href="fn.run_ex1.html" title="adventofcode2020::days::day20::run_ex1 fn">run_ex1</a></td><td class="docblock-short"><p>Part one answer.</p>
+</td></tr><tr class="module-item"><td><a class="fn" href="fn.run_ex2.html" title="adventofcode2020::days::day20::run_ex2 fn">run_ex2</a></td><td class="docblock-short"><p>Part two answer.</p>
+</td></tr></table><h2 id="types" class="section-header"><a href="#types">Type Definitions</a></h2>
+<table><tr class="module-item"><td><a class="type" href="type.TileMatches.html" title="adventofcode2020::days::day20::TileMatches type">TileMatches</a></td><td class="docblock-short"><p>Tile matches.</p>
+</td></tr></table></section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="adventofcode2020" data-search-js="../../../search-index.js"></div>
+    <script src="../../../main.js"></script></body></html>

@@ -1,0 +1,104 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Day 13: Shuttle Search"><meta name="keywords" content="rust, rustlang, rust-lang, day13"><title>adventofcode2020::days::day13 - Rust</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+<link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png">
+<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc mod"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../adventofcode2020/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a><p class="location">Module day13</p><div class="sidebar-elems"><div class="block items"><ul><li><a href="#structs">Structs</a></li><li><a href="#functions">Functions</a></li></ul></div><p class="location"><a href="../../index.html">adventofcode2020</a>::<wbr><a href="../index.html">days</a></p><div id="sidebar-vars" data-name="day13" data-ty="mod" data-relpath="../"></div><script defer src="../sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+                <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Module <a href="../../index.html">adventofcode2020</a>::<wbr><a href="../index.html">days</a>::<wbr><a class="mod" href="">day13</a></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../../../src/adventofcode2020/days/day13/mod.rs.html#1-338" title="goto source code">[src]</a></span></h1><div class="docblock"><h1 id="day-13-shuttle-search" class="section-header"><a href="#day-13-shuttle-search">Day 13: Shuttle Search</a></h1>
+<p>Your ferry can make it safely to a nearby port, but it won’t get much further. When you call to book another ship, you discover that no ships embark from that port to your vacation island. You’ll need to get from the port to the nearest airport.</p>
+<p>Fortunately, a shuttle bus service is available to bring you from the sea port to the airport! Each bus has an ID number that also indicates how often the bus leaves for the airport.</p>
+<p>Bus schedules are defined based on a timestamp that measures the number of minutes since some fixed reference point in the past. At timestamp 0, every bus simultaneously departed from the sea port. After that, each bus travels to the airport, then various other locations, and finally returns to the sea port to repeat its journey forever.</p>
+<p>The time this loop takes a particular bus is also its ID number: the bus with ID 5 departs from the sea port at timestamps 0, 5, 10, 15, and so on. The bus with ID 11 departs at 0, 11, 22, 33, and so on. If you are there when the bus departs, you can ride that bus to the airport!</p>
+<p>Your notes (your puzzle input) consist of two lines. The first line is your estimate of the earliest timestamp you could depart on a bus. The second line lists the bus IDs that are in service according to the shuttle company; entries that show x must be out of service, so you decide to ignore them.</p>
+<p>To save time once you arrive, your goal is to figure out the earliest bus you can take to the airport. (There will be exactly one such bus.)</p>
+<p>For example, suppose you have the following notes:</p>
+<pre><code class="language-text">939
+7,13,x,x,59,x,31,19
+</code></pre>
+<p>Here, the earliest timestamp you could depart is 939, and the bus IDs in service are 7, 13, 59, 31, and 19. Near timestamp 939, these bus IDs depart at the times marked D:</p>
+<pre><code class="language-text">time   bus 7   bus 13  bus 59  bus 31  bus 19
+929      .       .       .       .       .
+930      .       .       .       D       .
+931      D       .       .       .       D
+932      .       .       .       .       .
+933      .       .       .       .       .
+934      .       .       .       .       .
+935      .       .       .       .       .
+936      .       D       .       .       .
+937      .       .       .       .       .
+938      D       .       .       .       .
+939      .       .       .       .       .
+940      .       .       .       .       .
+941      .       .       .       .       .
+942      .       .       .       .       .
+943      .       .       .       .       .
+944      .       .       D       .       .
+945      D       .       .       .       .
+946      .       .       .       .       .
+947      .       .       .       .       .
+948      .       .       .       .       .
+949      .       D       .       .       .
+</code></pre>
+<p>The earliest bus you could take is bus ID 59. It doesn’t depart until timestamp 944, so you would need to wait 944 - 939 = 5 minutes before it departs. Multiplying the bus ID by the number of minutes you’d need to wait gives 295.</p>
+<p>What is the ID of the earliest bus you can take to the airport multiplied by the number of minutes you’ll need to wait for that bus?</p>
+<h1 id="part-two" class="section-header"><a href="#part-two">Part Two</a></h1>
+<p>The shuttle company is running a contest: one gold coin for anyone that can find the earliest timestamp such that the first bus ID departs at that time and each subsequent listed bus ID departs at that subsequent minute. (The first line in your input is no longer relevant.)</p>
+<p>For example, suppose you have the same list of bus IDs as above:</p>
+<pre><code class="language-text">7,13,x,x,59,x,31,19
+</code></pre>
+<p>An x in the schedule means there are no constraints on what bus IDs must depart at that time.</p>
+<p>This means you are looking for the earliest timestamp (called t) such that:</p>
+<ul>
+<li>Bus ID 7 departs at timestamp t.</li>
+<li>Bus ID 13 departs one minute after timestamp t.</li>
+<li>There are no requirements or restrictions on departures at two or three minutes after timestamp t.</li>
+<li>Bus ID 59 departs four minutes after timestamp t.</li>
+<li>There are no requirements or restrictions on departures at five minutes after timestamp t.</li>
+<li>Bus ID 31 departs six minutes after timestamp t.</li>
+<li>Bus ID 19 departs seven minutes after timestamp t.</li>
+</ul>
+<p>The only bus departures that matter are the listed bus IDs at their specific offsets from t. Those bus IDs can depart at other times, and other bus IDs can depart at those times. For example, in the list above, because bus ID 19 must depart seven minutes after the timestamp at which bus ID 7 departs, bus ID 7 will always also be departing with bus ID 19 at seven minutes after timestamp t.</p>
+<p>In this example, the earliest timestamp at which this occurs is 1068781:</p>
+<pre><code class="language-text">time     bus 7   bus 13  bus 59  bus 31  bus 19
+1068773    .       .       .       .       .
+1068774    D       .       .       .       .
+1068775    .       .       .       .       .
+1068776    .       .       .       .       .
+1068777    .       .       .       .       .
+1068778    .       .       .       .       .
+1068779    .       .       .       .       .
+1068780    .       .       .       .       .
+1068781    D       .       .       .       .
+1068782    .       D       .       .       .
+1068783    .       .       .       .       .
+1068784    .       .       .       .       .
+1068785    .       .       D       .       .
+1068786    .       .       .       .       .
+1068787    .       .       .       D       .
+1068788    D       .       .       .       D
+1068789    .       .       .       .       .
+1068790    .       .       .       .       .
+1068791    .       .       .       .       .
+1068792    .       .       .       .       .
+1068793    .       .       .       .       .
+1068794    .       .       .       .       .
+1068795    D       D       .       .       .
+1068796    .       .       .       .       .
+1068797    .       .       .       .       .
+</code></pre>
+<p>In the above example, bus ID 7 departs at timestamp 1068788 (seven minutes after t). This is fine; the only requirement on that minute is that bus ID 19 departs then, and it does.</p>
+<p>Here are some other examples:</p>
+<ul>
+<li>The earliest timestamp that matches the list 17,x,13,19 is 3417.</li>
+<li>67,7,59,61 first occurs at timestamp 754018.</li>
+<li>67,x,7,59,61 first occurs at timestamp 779210.</li>
+<li>67,7,x,59,61 first occurs at timestamp 1261476.</li>
+<li>1789,37,47,1889 first occurs at timestamp 1202161486.</li>
+</ul>
+<p>However, with so many bus IDs in your list, surely the actual earliest timestamp will be larger than 100000000000000!</p>
+<p>What is the earliest timestamp such that all of the listed bus IDs depart at offsets matching their positions in the list?</p>
+</div><h2 id="structs" class="section-header"><a href="#structs">Structs</a></h2>
+<table><tr class="module-item"><td><a class="struct" href="struct.Scheduler.html" title="adventofcode2020::days::day13::Scheduler struct">Scheduler</a></td><td class="docblock-short"><p>Bus scheduler</p>
+</td></tr></table><h2 id="functions" class="section-header"><a href="#functions">Functions</a></h2>
+<table><tr class="module-item"><td><a class="fn" href="fn.extract_schedules.html" title="adventofcode2020::days::day13::extract_schedules fn">extract_schedules</a></td><td class="docblock-short"><p>Extract schedules from input string.</p>
+</td></tr><tr class="module-item"><td><a class="fn" href="fn.run_ex1.html" title="adventofcode2020::days::day13::run_ex1 fn">run_ex1</a></td><td class="docblock-short"><p>Part one answer.</p>
+</td></tr><tr class="module-item"><td><a class="fn" href="fn.run_ex2.html" title="adventofcode2020::days::day13::run_ex2 fn">run_ex2</a></td><td class="docblock-short"><p>Part two answer.</p>
+</td></tr></table></section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="adventofcode2020" data-search-js="../../../search-index.js"></div>
+    <script src="../../../main.js"></script></body></html>

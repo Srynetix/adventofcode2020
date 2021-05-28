@@ -1,0 +1,91 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Day 23: Crab Cups"><meta name="keywords" content="rust, rustlang, rust-lang, day23"><title>adventofcode2020::days::day23 - Rust</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+<link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png">
+<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc mod"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../adventofcode2020/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a><p class="location">Module day23</p><div class="sidebar-elems"><div class="block items"><ul><li><a href="#structs">Structs</a></li><li><a href="#functions">Functions</a></li><li><a href="#types">Type Definitions</a></li></ul></div><p class="location"><a href="../../index.html">adventofcode2020</a>::<wbr><a href="../index.html">days</a></p><div id="sidebar-vars" data-name="day23" data-ty="mod" data-relpath="../"></div><script defer src="../sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+                <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Module <a href="../../index.html">adventofcode2020</a>::<wbr><a href="../index.html">days</a>::<wbr><a class="mod" href="">day23</a></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../../../src/adventofcode2020/days/day23/mod.rs.html#1-345" title="goto source code">[src]</a></span></h1><div class="docblock"><h1 id="day-23-crab-cups" class="section-header"><a href="#day-23-crab-cups">Day 23: Crab Cups</a></h1>
+<p>The small crab challenges you to a game! The crab is going to mix up some cups, and you have to predict where they’ll end up.</p>
+<p>The cups will be arranged in a circle and labeled clockwise (your puzzle input). For example, if your labeling were 32415, there would be five cups in the circle; going clockwise around the circle from the first cup, the cups would be labeled 3, 2, 4, 1, 5, and then back to 3 again.</p>
+<p>Before the crab starts, it will designate the first cup in your list as the current cup. The crab is then going to do 100 moves.</p>
+<p>Each move, the crab does the following actions:</p>
+<ul>
+<li>The crab picks up the three cups that are immediately clockwise of the current cup. They are removed from the circle; cup spacing is adjusted as necessary to maintain the circle.</li>
+<li>The crab selects a destination cup: the cup with a label equal to the current cup’s label minus one. If this would select one of the cups that was just picked up, the crab will keep subtracting one until it finds a cup that wasn’t just picked up. If at any point in this process the value goes below the lowest value on any cup’s label, it wraps around to the highest value on any cup’s label instead.</li>
+<li>The crab places the cups it just picked up so that they are immediately clockwise of the destination cup. They keep the same order as when they were picked up.</li>
+<li>The crab selects a new current cup: the cup which is immediately clockwise of the current cup.</li>
+</ul>
+<p>For example, suppose your cup labeling were 389125467. If the crab were to do merely 10 moves, the following changes would occur:</p>
+<pre><code class="language-text">-- move 1 --
+cups: (3) 8  9  1  2  5  4  6  7
+pick up: 8, 9, 1
+destination: 2
+
+-- move 2 --
+cups:  3 (2) 8  9  1  5  4  6  7
+pick up: 8, 9, 1
+destination: 7
+
+-- move 3 --
+cups:  3  2 (5) 4  6  7  8  9  1
+pick up: 4, 6, 7
+destination: 3
+
+-- move 4 --
+cups:  7  2  5 (8) 9  1  3  4  6
+pick up: 9, 1, 3
+destination: 7
+
+-- move 5 --
+cups:  3  2  5  8 (4) 6  7  9  1
+pick up: 6, 7, 9
+destination: 3
+
+-- move 6 --
+cups:  9  2  5  8  4 (1) 3  6  7
+pick up: 3, 6, 7
+destination: 9
+
+-- move 7 --
+cups:  7  2  5  8  4  1 (9) 3  6
+pick up: 3, 6, 7
+destination: 8
+
+-- move 8 --
+cups:  8  3  6  7  4  1  9 (2) 5
+pick up: 5, 8, 3
+destination: 1
+
+-- move 9 --
+cups:  7  4  1  5  8  3  9  2 (6)
+pick up: 7, 4, 1
+destination: 5
+
+-- move 10 --
+cups: (5) 7  4  1  8  3  9  2  6
+pick up: 7, 4, 1
+destination: 3
+
+-- final --
+cups:  5 (8) 3  7  4  1  9  2  6
+</code></pre>
+<p>In the above example, the cups’ values are the labels as they appear moving clockwise around the circle; the current cup is marked with ( ).</p>
+<p>After the crab is done, what order will the cups be in? Starting after the cup labeled 1, collect the other cups’ labels clockwise into a single string with no extra characters; each number except 1 should appear exactly once. In the above example, after 10 moves, the cups clockwise from 1 are labeled 9, 2, 6, 5, and so on, producing 92658374. If the crab were to complete all 100 moves, the order after cup 1 would be 67384529.</p>
+<p>Using your labeling, simulate 100 moves. What are the labels on the cups after cup 1?</p>
+<p>— Part Two —</p>
+<p>Due to what you can only assume is a mistranslation (you’re not exactly fluent in Crab), you are quite surprised when the crab starts arranging many cups in a circle on your raft - one million (1000000) in total.</p>
+<p>Your labeling is still correct for the first few cups; after that, the remaining cups are just numbered in an increasing fashion starting from the number after the highest number in your list and proceeding one by one until one million is reached. (For example, if your labeling were 54321, the cups would be numbered 5, 4, 3, 2, 1, and then start counting up from 6 until one million is reached.) In this way, every number from one through one million is used exactly once.</p>
+<p>After discovering where you made the mistake in translating Crab Numbers, you realize the small crab isn’t going to do merely 100 moves; the crab is going to do ten million (10000000) moves!</p>
+<p>The crab is going to hide your stars - one each - under the two cups that will end up immediately clockwise of cup 1. You can have them if you predict what the labels on those cups will be when the crab is finished.</p>
+<p>In the above example (389125467), this would be 934001 and then 159792; multiplying these together produces 149245887792.</p>
+<p>Determine which two cups will end up immediately clockwise of cup 1. What do you get if you multiply their labels together?</p>
+</div><h2 id="structs" class="section-header"><a href="#structs">Structs</a></h2>
+<table><tr class="module-item"><td><a class="struct" href="struct.Cups.html" title="adventofcode2020::days::day23::Cups struct">Cups</a></td><td class="docblock-short"><p>Cups.</p>
+</td></tr></table><h2 id="functions" class="section-header"><a href="#functions">Functions</a></h2>
+<table><tr class="module-item"><td><a class="fn" href="fn.cups_to_string.html" title="adventofcode2020::days::day23::cups_to_string fn">cups_to_string</a></td><td class="docblock-short"><p>Join cups to string, starting with <code>head</code>.</p>
+</td></tr><tr class="module-item"><td><a class="fn" href="fn.game_step.html" title="adventofcode2020::days::day23::game_step fn">game_step</a></td><td class="docblock-short"><p>Execute a game step.</p>
+</td></tr><tr class="module-item"><td><a class="fn" href="fn.prepare_million_cups.html" title="adventofcode2020::days::day23::prepare_million_cups fn">prepare_million_cups</a></td><td class="docblock-short"><p>Prepare million cups.</p>
+</td></tr><tr class="module-item"><td><a class="fn" href="fn.run_ex1.html" title="adventofcode2020::days::day23::run_ex1 fn">run_ex1</a></td><td class="docblock-short"><p>Part one answer.</p>
+</td></tr><tr class="module-item"><td><a class="fn" href="fn.run_ex2.html" title="adventofcode2020::days::day23::run_ex2 fn">run_ex2</a></td><td class="docblock-short"><p>Part two answer.</p>
+</td></tr><tr class="module-item"><td><a class="fn" href="fn.run_steps.html" title="adventofcode2020::days::day23::run_steps fn">run_steps</a></td><td class="docblock-short"><p>Run <code>n</code> steps of simulation.</p>
+</td></tr></table><h2 id="types" class="section-header"><a href="#types">Type Definitions</a></h2>
+<table><tr class="module-item"><td><a class="type" href="type.Cup.html" title="adventofcode2020::days::day23::Cup type">Cup</a></td><td class="docblock-short"><p>Cup.</p>
+</td></tr></table></section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="adventofcode2020" data-search-js="../../../search-index.js"></div>
+    <script src="../../../main.js"></script></body></html>

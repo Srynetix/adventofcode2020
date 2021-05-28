@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["cups_to_string","Join cups to string, starting with `head`."],["game_step","Execute a game step."],["prepare_million_cups","Prepare million cups."],["run_ex1","Part one answer."],["run_ex2","Part two answer."],["run_steps","Run `n` steps of simulation."]],"struct":[["Cups","Cups."]],"type":[["Cup","Cup."]]});

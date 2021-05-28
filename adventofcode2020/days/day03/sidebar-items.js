@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["MapCell","Handle map state, with an empty cell (`.`, or a tree `#`)"]],"fn":[["run_ex1","Part one answer."],["run_ex2","Part two answer."]],"struct":[["TobogganMap","Handle toboggan map data"]]});

@@ -1,0 +1,3 @@
+(function() {var implementors = {};
+implementors["adventofcode2020"] = [{"text":"impl <a class=\"trait\" href=\"https://doc.rust-lang.org/nightly/alloc/string/trait.ToString.html\" title=\"trait alloc::string::ToString\">ToString</a> for <a class=\"struct\" href=\"adventofcode2020/days/day23/struct.Cups.html\" title=\"struct adventofcode2020::days::day23::Cups\">Cups</a>","synthetic":false,"types":["adventofcode2020::days::day23::Cups"]}];
+if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

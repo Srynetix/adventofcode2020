@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["SeatState","Seat state"]],"fn":[["run_ex1","Part one answer."],["run_ex2","Part two answer."]],"struct":[["SeatLayout","Seat layout"],["SeatLayoutStats","Seat layout stats"]]});

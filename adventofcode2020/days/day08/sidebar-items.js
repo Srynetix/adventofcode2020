@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["OpCode","Operation code"],["StepOutput","Step output"]],"fn":[["run_ex1","Part one answer."],["run_ex2","Part two answer."]],"struct":[["Instruction","Instruction"],["Interpreter","Interpreter"],["Parser","Instruction parser"]]});

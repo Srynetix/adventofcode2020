@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["CommandDirection","Command direction"]],"fn":[["compute_manhattan_distance","Compute Manhattan distance from a isize tuple."],["rotate_position","Rotate position from `amount`."],["run_ex1","Part one answer."],["run_ex2","Part two answer."]],"struct":[["Ship","Ship"]]});

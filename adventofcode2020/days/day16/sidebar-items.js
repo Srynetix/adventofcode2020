@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["DayError","Day error."]],"fn":[["run_ex1","Part one answer."],["run_ex2","Part two answer."]],"struct":[["InputParser","Input parser."],["Ticket","Ticket."],["TicketRule","Ticket rule."]]});

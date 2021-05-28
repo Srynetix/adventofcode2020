@@ -1,0 +1,80 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Day 24: Lobby Layout"><meta name="keywords" content="rust, rustlang, rust-lang, day24"><title>adventofcode2020::days::day24 - Rust</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+<link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png">
+<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc mod"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../adventofcode2020/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a><p class="location">Module day24</p><div class="sidebar-elems"><div class="block items"><ul><li><a href="#structs">Structs</a></li><li><a href="#enums">Enums</a></li><li><a href="#functions">Functions</a></li><li><a href="#types">Type Definitions</a></li></ul></div><p class="location"><a href="../../index.html">adventofcode2020</a>::<wbr><a href="../index.html">days</a></p><div id="sidebar-vars" data-name="day24" data-ty="mod" data-relpath="../"></div><script defer src="../sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+                <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Module <a href="../../index.html">adventofcode2020</a>::<wbr><a href="../index.html">days</a>::<wbr><a class="mod" href="">day24</a></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../../../src/adventofcode2020/days/day24/mod.rs.html#1-463" title="goto source code">[src]</a></span></h1><div class="docblock"><h1 id="day-24-lobby-layout" class="section-header"><a href="#day-24-lobby-layout">Day 24: Lobby Layout</a></h1>
+<p>Your raft makes it to the tropical island; it turns out that the small crab was an excellent navigator. You make your way to the resort.</p>
+<p>As you enter the lobby, you discover a small problem: the floor is being renovated. You can’t even reach the check-in desk until they’ve finished installing the new tile floor.</p>
+<p>The tiles are all hexagonal; they need to be arranged in a hex grid with a very specific color pattern. Not in the mood to wait, you offer to help figure out the pattern.</p>
+<p>The tiles are all white on one side and black on the other. They start with the white side facing up. The lobby is large enough to fit whatever pattern might need to appear there.</p>
+<p>A member of the renovation crew gives you a list of the tiles that need to be flipped over (your puzzle input). Each line in the list identifies a single tile that needs to be flipped by giving a series of steps starting from a reference tile in the very center of the room. (Every line starts from the same reference tile.)</p>
+<p>Because the tiles are hexagonal, every tile has six neighbors: east, southeast, southwest, west, northwest, and northeast. These directions are given in your list, respectively, as e, se, sw, w, nw, and ne. A tile is identified by a series of these directions with no delimiters; for example, esenee identifies the tile you land on if you start at the reference tile and then move one tile east, one tile southeast, one tile northeast, and one tile east.</p>
+<p>Each time a tile is identified, it flips from white to black or from black to white. Tiles might be flipped more than once. For example, a line like esew flips a tile immediately adjacent to the reference tile, and a line like nwwswee flips the reference tile itself.</p>
+<p>Here is a larger example:</p>
+<pre><code class="language-text">sesenwnenenewseeswwswswwnenewsewsw
+neeenesenwnwwswnenewnwwsewnenwseswesw
+seswneswswsenwwnwse
+nwnwneseeswswnenewneswwnewseswneseene
+swweswneswnenwsewnwneneseenw
+eesenwseswswnenwswnwnwsewwnwsene
+sewnenenenesenwsewnenwwwse
+wenwwweseeeweswwwnwwe
+wsweesenenewnwwnwsenewsenwwsesesenwne
+neeswseenwwswnwswswnw
+nenwswwsewswnenenewsenwsenwnesesenew
+enewnwewneswsewnwswenweswnenwsenwsw
+sweneswneswneneenwnewenewwneswswnese
+swwesenesewenwneswnwwneseswwne
+enesenwswwswneneswsenwnewswseenwsese
+wnwnesenesenenwwnenwsewesewsesesew
+nenewswnwewswnenesenwnesewesw
+eneswnwswnwsenenwnwnwwseeswneewsenese
+neswnwewnwnwseenwseesewsenwsweewe
+wseweeenwnesenwwwswnew
+</code></pre>
+<p>In the above example, 10 tiles are flipped once (to black), and 5 more are flipped twice (to black, then back to white). After all of these instructions have been followed, a total of 10 tiles are black.</p>
+<p>Go through the renovation crew’s list and determine which tiles they need to flip. After all of the instructions have been followed, how many tiles are left with the black side up?</p>
+<h1 id="part-two" class="section-header"><a href="#part-two">Part Two</a></h1>
+<p>The tile floor in the lobby is meant to be a living art exhibit. Every day, the tiles are all flipped according to the following rules:</p>
+<p>Any black tile with zero or more than 2 black tiles immediately adjacent to it is flipped to white.
+Any white tile with exactly 2 black tiles immediately adjacent to it is flipped to black.
+Here, tiles immediately adjacent means the six tiles directly touching the tile in question.</p>
+<p>The rules are applied simultaneously to every tile; put another way, it is first determined which tiles need to be flipped, then they are all flipped at the same time.</p>
+<p>In the above example, the number of black tiles that are facing up after the given number of days has passed is as follows:</p>
+<pre><code class="language-text">Day 1: 15
+Day 2: 12
+Day 3: 25
+Day 4: 14
+Day 5: 23
+Day 6: 28
+Day 7: 41
+Day 8: 37
+Day 9: 49
+Day 10: 37
+
+Day 20: 132
+Day 30: 259
+Day 40: 406
+Day 50: 566
+Day 60: 788
+Day 70: 1106
+Day 80: 1373
+Day 90: 1844
+Day 100: 2208
+</code></pre>
+<p>After executing this process a total of 100 times, there would be 2208 black tiles facing up.</p>
+<p>How many tiles will be black after 100 days?</p>
+</div><h2 id="structs" class="section-header"><a href="#structs">Structs</a></h2>
+<table><tr class="module-item"><td><a class="struct" href="struct.HexGrid.html" title="adventofcode2020::days::day24::HexGrid struct">HexGrid</a></td><td class="docblock-short"><p>Hexagonal grid.</p>
+</td></tr></table><h2 id="enums" class="section-header"><a href="#enums">Enums</a></h2>
+<table><tr class="module-item"><td><a class="enum" href="enum.Direction.html" title="adventofcode2020::days::day24::Direction enum">Direction</a></td><td class="docblock-short"><p>Hexagonal direction.</p>
+</td></tr><tr class="module-item"><td><a class="enum" href="enum.Tile.html" title="adventofcode2020::days::day24::Tile enum">Tile</a></td><td class="docblock-short"><p>Hexagonal tile.</p>
+</td></tr></table><h2 id="functions" class="section-header"><a href="#functions">Functions</a></h2>
+<table><tr class="module-item"><td><a class="fn" href="fn.parse_direction.html" title="adventofcode2020::days::day24::parse_direction fn">parse_direction</a></td><td class="docblock-short"><p>Parse direction from string.</p>
+</td></tr><tr class="module-item"><td><a class="fn" href="fn.parse_path.html" title="adventofcode2020::days::day24::parse_path fn">parse_path</a></td><td class="docblock-short"><p>Parse path from input.</p>
+</td></tr><tr class="module-item"><td><a class="fn" href="fn.parse_paths.html" title="adventofcode2020::days::day24::parse_paths fn">parse_paths</a></td><td class="docblock-short"><p>Parse multiple paths from input.</p>
+</td></tr><tr class="module-item"><td><a class="fn" href="fn.run_ex1.html" title="adventofcode2020::days::day24::run_ex1 fn">run_ex1</a></td><td class="docblock-short"><p>Part one answer.</p>
+</td></tr><tr class="module-item"><td><a class="fn" href="fn.run_ex2.html" title="adventofcode2020::days::day24::run_ex2 fn">run_ex2</a></td><td class="docblock-short"><p>Part two answer.</p>
+</td></tr></table><h2 id="types" class="section-header"><a href="#types">Type Definitions</a></h2>
+<table><tr class="module-item"><td><a class="type" href="type.DirPath.html" title="adventofcode2020::days::day24::DirPath type">DirPath</a></td><td class="docblock-short"><p>Direction path.</p>
+</td></tr></table></section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="adventofcode2020" data-search-js="../../../search-index.js"></div>
+    <script src="../../../main.js"></script></body></html>

@@ -1,0 +1,65 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Day 18: Operator Order"><meta name="keywords" content="rust, rustlang, rust-lang, day18"><title>adventofcode2020::days::day18 - Rust</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
+<link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png">
+<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc mod"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../adventofcode2020/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a><p class="location">Module day18</p><div class="sidebar-elems"><div class="block items"><ul><li><a href="#structs">Structs</a></li><li><a href="#enums">Enums</a></li><li><a href="#functions">Functions</a></li></ul></div><p class="location"><a href="../../index.html">adventofcode2020</a>::<wbr><a href="../index.html">days</a></p><div id="sidebar-vars" data-name="day18" data-ty="mod" data-relpath="../"></div><script defer src="../sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+                <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Module <a href="../../index.html">adventofcode2020</a>::<wbr><a href="../index.html">days</a>::<wbr><a class="mod" href="">day18</a></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../../../src/adventofcode2020/days/day18/mod.rs.html#1-615" title="goto source code">[src]</a></span></h1><div class="docblock"><h1 id="day-18-operator-order" class="section-header"><a href="#day-18-operator-order">Day 18: Operator Order</a></h1>
+<p>As you look out the window and notice a heavily-forested continent slowly appear over the horizon, you are interrupted by the child sitting next to you. They’re curious if you could help them with their math homework.</p>
+<p>Unfortunately, it seems like this “math” follows different rules than you remember.</p>
+<p>The homework (your puzzle input) consists of a series of expressions that consist of addition (+), multiplication (*), and parentheses ((…)). Just like normal math, parentheses indicate that the expression inside must be evaluated before it can be used by the surrounding expression. Addition still finds the sum of the numbers on both sides of the operator, and multiplication still finds the product.</p>
+<p>However, the rules of operator precedence have changed. Rather than evaluating multiplication before addition, the operators have the same precedence, and are evaluated left-to-right regardless of the order in which they appear.</p>
+<p>For example, the steps to evaluate the expression 1 + 2 * 3 + 4 * 5 + 6 are as follows:</p>
+<pre><code class="language-text">1 + 2 * 3 + 4 * 5 + 6
+  3   * 3 + 4 * 5 + 6
+      9   + 4 * 5 + 6
+         13   * 5 + 6
+             65   + 6
+                 71
+</code></pre>
+<p>Parentheses can override this order; for example, here is what happens if parentheses are added to form 1 + (2 * 3) + (4 * (5 + 6)):</p>
+<pre><code class="language-text">1 + (2 * 3) + (4 * (5 + 6))
+1 +    6    + (4 * (5 + 6))
+     7      + (4 * (5 + 6))
+     7      + (4 *   11   )
+     7      +     44
+            51
+</code></pre>
+<p>Here are a few more examples:</p>
+<pre><code class="language-text">2 * 3 + (4 * 5) becomes 26.
+5 + (8 * 3 + 9 + 3 * 4 * 3) becomes 437.
+5 * 9 * (7 * 3 * 3 + 9 * 3 + (8 + 6 * 4)) becomes 12240.
+((2 + 4 * 9) * (6 + 9 * 8 + 6) + 6) + 2 + 4 * 2 becomes 13632.
+</code></pre>
+<p>Before you can help with the homework, you need to understand it yourself. Evaluate the expression on each line of the homework; what is the sum of the resulting values?</p>
+<h1 id="part-two" class="section-header"><a href="#part-two">Part Two</a></h1>
+<p>You manage to answer the child’s questions and they finish part 1 of their homework, but get stuck when they reach the next section: advanced math.</p>
+<p>Now, addition and multiplication have different precedence levels, but they’re not the ones you’re familiar with. Instead, addition is evaluated before multiplication.</p>
+<p>For example, the steps to evaluate the expression 1 + 2 * 3 + 4 * 5 + 6 are now as follows:</p>
+<pre><code class="language-text">1 + 2 * 3 + 4 * 5 + 6
+  3   * 3 + 4 * 5 + 6
+  3   *   7   * 5 + 6
+  3   *   7   *  11
+     21       *  11
+         231
+</code></pre>
+<p>Here are the other examples from above:</p>
+<pre><code class="language-text">1 + (2 * 3) + (4 * (5 + 6)) still becomes 51.
+2 * 3 + (4 * 5) becomes 46.
+5 + (8 * 3 + 9 + 3 * 4 * 3) becomes 1445.
+5 * 9 * (7 * 3 * 3 + 9 * 3 + (8 + 6 * 4)) becomes 669060.
+((2 + 4 * 9) * (6 + 9 * 8 + 6) + 6) + 2 + 4 * 2 becomes 23340.
+</code></pre>
+<p>What do you get if you add up the results of evaluating the homework problems using these new rules?</p>
+</div><h2 id="structs" class="section-header"><a href="#structs">Structs</a></h2>
+<table><tr class="module-item"><td><a class="struct" href="struct.ExpressionLexer.html" title="adventofcode2020::days::day18::ExpressionLexer struct">ExpressionLexer</a></td><td class="docblock-short"><p>Expression lexer.</p>
+</td></tr><tr class="module-item"><td><a class="struct" href="struct.ExpressionLexerContext.html" title="adventofcode2020::days::day18::ExpressionLexerContext struct">ExpressionLexerContext</a></td><td class="docblock-short"><p>Expression lexer context.</p>
+</td></tr><tr class="module-item"><td><a class="struct" href="struct.ExpressionParser.html" title="adventofcode2020::days::day18::ExpressionParser struct">ExpressionParser</a></td><td class="docblock-short"><p>Expression parser.</p>
+</td></tr></table><h2 id="enums" class="section-header"><a href="#enums">Enums</a></h2>
+<table><tr class="module-item"><td><a class="enum" href="enum.DayError.html" title="adventofcode2020::days::day18::DayError enum">DayError</a></td><td class="docblock-short"><p>Day error.</p>
+</td></tr><tr class="module-item"><td><a class="enum" href="enum.ExpressionNode.html" title="adventofcode2020::days::day18::ExpressionNode enum">ExpressionNode</a></td><td class="docblock-short"><p>Expression node.</p>
+</td></tr><tr class="module-item"><td><a class="enum" href="enum.ExpressionToken.html" title="adventofcode2020::days::day18::ExpressionToken enum">ExpressionToken</a></td><td class="docblock-short"><p>Expression token.</p>
+</td></tr><tr class="module-item"><td><a class="enum" href="enum.OperatorSign.html" title="adventofcode2020::days::day18::OperatorSign enum">OperatorSign</a></td><td class="docblock-short"><p>Operator sign.</p>
+</td></tr><tr class="module-item"><td><a class="enum" href="enum.Parenthese.html" title="adventofcode2020::days::day18::Parenthese enum">Parenthese</a></td><td class="docblock-short"><p>Parenthese.</p>
+</td></tr></table><h2 id="functions" class="section-header"><a href="#functions">Functions</a></h2>
+<table><tr class="module-item"><td><a class="fn" href="fn.run_ex1.html" title="adventofcode2020::days::day18::run_ex1 fn">run_ex1</a></td><td class="docblock-short"><p>Part one answer.</p>
+</td></tr><tr class="module-item"><td><a class="fn" href="fn.run_ex2.html" title="adventofcode2020::days::day18::run_ex2 fn">run_ex2</a></td><td class="docblock-short"><p>Part two answer.</p>
+</td></tr></table></section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="adventofcode2020" data-search-js="../../../search-index.js"></div>
+    <script src="../../../main.js"></script></body></html>

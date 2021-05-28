@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["initialize_command_line","Initialize command line arguments."]],"mod":[["common","Common types"],["days","Advent of Code 2020 days"]]});

@@ -1,0 +1,295 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/days/day25/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../../storage.js"></script><script src="../../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg">
+<link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png">
+<link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../../adventofcode2020/index.html'><div class='logo-container rust-logo'><img src='../../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+                <a id="settings-menu" href="../../../../settings.html"><img src="../../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
+<span id="2">  2</span>
+<span id="3">  3</span>
+<span id="4">  4</span>
+<span id="5">  5</span>
+<span id="6">  6</span>
+<span id="7">  7</span>
+<span id="8">  8</span>
+<span id="9">  9</span>
+<span id="10"> 10</span>
+<span id="11"> 11</span>
+<span id="12"> 12</span>
+<span id="13"> 13</span>
+<span id="14"> 14</span>
+<span id="15"> 15</span>
+<span id="16"> 16</span>
+<span id="17"> 17</span>
+<span id="18"> 18</span>
+<span id="19"> 19</span>
+<span id="20"> 20</span>
+<span id="21"> 21</span>
+<span id="22"> 22</span>
+<span id="23"> 23</span>
+<span id="24"> 24</span>
+<span id="25"> 25</span>
+<span id="26"> 26</span>
+<span id="27"> 27</span>
+<span id="28"> 28</span>
+<span id="29"> 29</span>
+<span id="30"> 30</span>
+<span id="31"> 31</span>
+<span id="32"> 32</span>
+<span id="33"> 33</span>
+<span id="34"> 34</span>
+<span id="35"> 35</span>
+<span id="36"> 36</span>
+<span id="37"> 37</span>
+<span id="38"> 38</span>
+<span id="39"> 39</span>
+<span id="40"> 40</span>
+<span id="41"> 41</span>
+<span id="42"> 42</span>
+<span id="43"> 43</span>
+<span id="44"> 44</span>
+<span id="45"> 45</span>
+<span id="46"> 46</span>
+<span id="47"> 47</span>
+<span id="48"> 48</span>
+<span id="49"> 49</span>
+<span id="50"> 50</span>
+<span id="51"> 51</span>
+<span id="52"> 52</span>
+<span id="53"> 53</span>
+<span id="54"> 54</span>
+<span id="55"> 55</span>
+<span id="56"> 56</span>
+<span id="57"> 57</span>
+<span id="58"> 58</span>
+<span id="59"> 59</span>
+<span id="60"> 60</span>
+<span id="61"> 61</span>
+<span id="62"> 62</span>
+<span id="63"> 63</span>
+<span id="64"> 64</span>
+<span id="65"> 65</span>
+<span id="66"> 66</span>
+<span id="67"> 67</span>
+<span id="68"> 68</span>
+<span id="69"> 69</span>
+<span id="70"> 70</span>
+<span id="71"> 71</span>
+<span id="72"> 72</span>
+<span id="73"> 73</span>
+<span id="74"> 74</span>
+<span id="75"> 75</span>
+<span id="76"> 76</span>
+<span id="77"> 77</span>
+<span id="78"> 78</span>
+<span id="79"> 79</span>
+<span id="80"> 80</span>
+<span id="81"> 81</span>
+<span id="82"> 82</span>
+<span id="83"> 83</span>
+<span id="84"> 84</span>
+<span id="85"> 85</span>
+<span id="86"> 86</span>
+<span id="87"> 87</span>
+<span id="88"> 88</span>
+<span id="89"> 89</span>
+<span id="90"> 90</span>
+<span id="91"> 91</span>
+<span id="92"> 92</span>
+<span id="93"> 93</span>
+<span id="94"> 94</span>
+<span id="95"> 95</span>
+<span id="96"> 96</span>
+<span id="97"> 97</span>
+<span id="98"> 98</span>
+<span id="99"> 99</span>
+<span id="100">100</span>
+<span id="101">101</span>
+<span id="102">102</span>
+<span id="103">103</span>
+<span id="104">104</span>
+<span id="105">105</span>
+<span id="106">106</span>
+<span id="107">107</span>
+<span id="108">108</span>
+<span id="109">109</span>
+<span id="110">110</span>
+<span id="111">111</span>
+<span id="112">112</span>
+<span id="113">113</span>
+<span id="114">114</span>
+<span id="115">115</span>
+<span id="116">116</span>
+<span id="117">117</span>
+<span id="118">118</span>
+<span id="119">119</span>
+<span id="120">120</span>
+<span id="121">121</span>
+<span id="122">122</span>
+<span id="123">123</span>
+<span id="124">124</span>
+<span id="125">125</span>
+<span id="126">126</span>
+<span id="127">127</span>
+<span id="128">128</span>
+<span id="129">129</span>
+<span id="130">130</span>
+<span id="131">131</span>
+<span id="132">132</span>
+<span id="133">133</span>
+<span id="134">134</span>
+<span id="135">135</span>
+<span id="136">136</span>
+<span id="137">137</span>
+<span id="138">138</span>
+<span id="139">139</span>
+<span id="140">140</span>
+<span id="141">141</span>
+<span id="142">142</span>
+<span id="143">143</span>
+<span id="144">144</span>
+</pre><div class="example-wrap"><pre class="rust ">
+<span class="doccomment">//! # Day 25: Combo Breaker</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! You finally reach the check-in desk. Unfortunately, their registration systems are currently offline, and they cannot check you in. Noticing the look on your face, they quickly add that tech support is already on the way! They even created all the room keys this morning; you can take yours now and give them your room deposit once the registration system comes back online.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! The room key is a small RFID card. Your room is on the 25th floor and the elevators are also temporarily out of service, so it takes what little energy you have left to even climb the stairs and navigate the halls. You finally reach the door to your room, swipe your card, and - beep - the light turns red.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! Examining the card more closely, you discover a phone number for tech support.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! &quot;Hello! How can we help you today?&quot; You explain the situation.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! &quot;Well, it sounds like the card isn&#39;t sending the right command to unlock the door. If you go back to the check-in desk, surely someone there can reset it for you.&quot; Still catching your breath, you describe the status of the elevator and the exact number of stairs you just had to climb.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! &quot;I see! Well, your only other option would be to reverse-engineer the cryptographic handshake the card does with the door and then inject your own commands into the data stream, but that&#39;s definitely impossible.&quot; You thank them for their time.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! Unfortunately for the door, you know a thing or two about cryptographic handshakes.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! The handshake used by the card and the door involves an operation that transforms a subject number. To transform a subject number, start with the value 1. Then, a number of times called the loop size, perform the following steps:</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! - Set the value to itself multiplied by the subject number.</span>
+<span class="doccomment">//! - Set the value to the remainder after dividing the value by 20201227.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! The card always uses a specific, secret loop size when it transforms a subject number. The door always uses a different, secret loop size.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! The cryptographic handshake works like this:</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! - The card transforms the subject number of 7 according to the card&#39;s secret loop size. The result is called the card&#39;s public key.</span>
+<span class="doccomment">//! - The door transforms the subject number of 7 according to the door&#39;s secret loop size. The result is called the door&#39;s public key.</span>
+<span class="doccomment">//! - The card and door use the wireless RFID signal to transmit the two public keys (your puzzle input) to the other device. Now, the card has the door&#39;s public key, and the door has the card&#39;s public key. Because you can eavesdrop on the signal, you have both public keys, but neither device&#39;s loop size.</span>
+<span class="doccomment">//! - The card transforms the subject number of the door&#39;s public key according to the card&#39;s loop size. The result is the encryption key.</span>
+<span class="doccomment">//! - The door transforms the subject number of the card&#39;s public key according to the door&#39;s loop size. The result is the same encryption key as the card calculated.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! If you can use the two public keys to determine each device&#39;s loop size, you will have enough information to calculate the secret encryption key that the card and door use to communicate; this would let you send the unlock command directly to the door!</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! For example, suppose you know that the card&#39;s public key is 5764801. With a little trial and error, you can work out that the card&#39;s loop size must be 8, because transforming the initial subject number of 7 with a loop size of 8 produces 5764801.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! Then, suppose you know that the door&#39;s public key is 17807724. By the same process, you can determine that the door&#39;s loop size is 11, because transforming the initial subject number of 7 with a loop size of 11 produces 17807724.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! At this point, you can use either device&#39;s loop size with the other device&#39;s public key to calculate the encryption key. Transforming the subject number of 17807724 (the door&#39;s public key) with a loop size of 8 (the card&#39;s loop size) produces the encryption key, 14897079. (Transforming the subject number of 5764801 (the card&#39;s public key) with a loop size of 11 (the door&#39;s loop size) produces the same encryption key: 14897079.)</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! What encryption key is the handshake trying to establish?</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! # Part Two</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! The light turns green and the door unlocks. As you collapse onto the bed in your room, your pager goes off!</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! &quot;It&#39;s an emergency!&quot; the Elf calling you explains. &quot;The soft serve machine in the cafeteria on sub-basement 7 just failed and you&#39;re the only one that knows how to fix it! We&#39;ve already dispatched a reindeer to your location to pick you up.&quot;</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! You hear the sound of hooves landing on your balcony.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! The reindeer carefully explores the contents of your room while you figure out how you&#39;re going to pay the 50 stars you owe the resort before you leave. Noticing that you look concerned, the reindeer wanders over to you; you see that it&#39;s carrying a small pouch.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! &quot;Sorry for the trouble,&quot; a note in the pouch reads. Sitting at the bottom of the pouch is a gold coin with a little picture of a starfish on it.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! Looks like you only needed 49 stars after all.</span>
+
+<span class="kw">use</span> <span class="ident">itertools</span>::<span class="ident">Itertools</span>;
+
+<span class="kw">type</span> <span class="ident">PublicKey</span> <span class="op">=</span> <span class="ident">usize</span>;
+
+<span class="kw">const</span> <span class="ident">INPUT_VALUES</span>: <span class="kw-2">&amp;</span><span class="ident">str</span> <span class="op">=</span> <span class="macro">include_str</span><span class="macro">!</span>(<span class="string">&quot;input.txt&quot;</span>);
+
+<span class="doccomment">/// Answer.</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">run_ex</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+    <span class="kw">let</span> (<span class="ident">card_key</span>, <span class="ident">door_key</span>) <span class="op">=</span> <span class="ident">parse_keys</span>(<span class="ident">INPUT_VALUES</span>);
+    <span class="kw">let</span> (<span class="ident">card_ls</span>, <span class="ident">door_ls</span>) <span class="op">=</span> (<span class="ident">determine_loop_size</span>(<span class="ident">card_key</span>), <span class="ident">determine_loop_size</span>(<span class="ident">door_key</span>));
+    <span class="kw">let</span> (<span class="ident">card_ec</span>, <span class="ident">door_ec</span>) <span class="op">=</span> (
+        <span class="ident">transform_subject_number_loop</span>(<span class="ident">card_key</span>, <span class="ident">door_ls</span>),
+        <span class="ident">transform_subject_number_loop</span>(<span class="ident">door_key</span>, <span class="ident">card_ls</span>),
+    );
+    <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">card_ec</span>, <span class="ident">door_ec</span>);
+
+    <span class="ident">card_ec</span>
+}
+
+<span class="kw">fn</span> <span class="ident">parse_keys</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">PublicKey</span>, <span class="ident">PublicKey</span>) {
+    <span class="ident">input</span>
+        .<span class="ident">trim</span>()
+        .<span class="ident">lines</span>()
+        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">l</span><span class="op">|</span> <span class="ident">l</span>.<span class="ident">trim</span>().<span class="ident">parse</span>().<span class="ident">unwrap</span>())
+        .<span class="ident">collect_tuple</span>()
+        .<span class="ident">unwrap</span>()
+}
+
+<span class="kw">fn</span> <span class="ident">transform_subject_number_iteration</span>(<span class="ident">i</span>: <span class="ident">usize</span>, <span class="ident">subject</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+    (<span class="ident">i</span> <span class="op">*</span> <span class="ident">subject</span>) <span class="op">%</span> <span class="number">20_201_227</span>
+}
+
+<span class="kw">fn</span> <span class="ident">transform_subject_number_loop</span>(<span class="ident">subject</span>: <span class="ident">usize</span>, <span class="ident">loop_size</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+    (<span class="number">0</span>..<span class="ident">loop_size</span>)
+        .<span class="ident">into_iter</span>()
+        .<span class="ident">fold</span>(<span class="number">1</span>, <span class="op">|</span><span class="ident">acc</span>, <span class="kw">_</span><span class="op">|</span> <span class="ident">transform_subject_number_iteration</span>(<span class="ident">acc</span>, <span class="ident">subject</span>))
+}
+
+<span class="kw">fn</span> <span class="ident">determine_loop_size</span>(<span class="ident">public_key</span>: <span class="ident">PublicKey</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">num</span> <span class="op">=</span> <span class="number">1</span>;
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">counter</span> <span class="op">=</span> <span class="number">0</span>;
+
+    <span class="kw">loop</span> {
+        <span class="ident">num</span> <span class="op">=</span> <span class="ident">transform_subject_number_iteration</span>(<span class="ident">num</span>, <span class="number">7</span>);
+        <span class="ident">counter</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+
+        <span class="kw">if</span> <span class="ident">num</span> <span class="op">=</span><span class="op">=</span> <span class="ident">public_key</span> {
+            <span class="kw">break</span>;
+        }
+    }
+
+    <span class="ident">counter</span>
+}
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
+<span class="kw">mod</span> <span class="ident">tests</span> {
+    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+
+    <span class="kw">const</span> <span class="ident">EX_OUTPUT</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">19_414_467</span>;
+
+    <span class="kw">const</span> <span class="ident">SAMPLE</span>: <span class="kw-2">&amp;</span><span class="ident">str</span> <span class="op">=</span> <span class="ident">indoc</span>::<span class="macro">indoc</span><span class="macro">!</span>(
+        <span class="string">&quot;
+            5764801
+            17807724
+        &quot;</span>
+    );
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">test_parse_keys</span>() {
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">parse_keys</span>(<span class="ident">SAMPLE</span>), (<span class="number">5_764_801</span>, <span class="number">17_807_724</span>));
+    }
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">test_determine_loop_size</span>() {
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">determine_loop_size</span>(<span class="number">5_764_801</span>), <span class="number">8</span>);
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">determine_loop_size</span>(<span class="number">17_807_724</span>), <span class="number">11</span>);
+    }
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">test_transform_subject_number_loop</span>() {
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">transform_subject_number_loop</span>(<span class="number">17_807_724</span>, <span class="number">8</span>), <span class="number">14_897_079</span>);
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">transform_subject_number_loop</span>(<span class="number">5_764_801</span>, <span class="number">11</span>), <span class="number">14_897_079</span>);
+    }
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">test_run_ex</span>() {
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">run_ex</span>(), <span class="ident">EX_OUTPUT</span>);
+    }
+}
+</pre></div>
+</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="adventofcode2020" data-search-js="../../../../search-index.js"></div>
+    <script src="../../../../main.js"></script><script src="../../../../source-script.js"></script><script src="../../../../source-files.js"></script></body></html>
