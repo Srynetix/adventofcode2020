@@ -1,6 +1,7 @@
 # Advent Of Code 2020
 
 ![Tests status](https://github.com/Srynetix/adventofcode2020/workflows/Tests/badge.svg)
+[![codecov](https://codecov.io/gh/Srynetix/adventofcode2020/branch/main/graph/badge.svg?token=IJA9D6HNLW)](https://codecov.io/gh/Srynetix/adventofcode2020)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 [![Docs](https://img.shields.io/badge/docs-up--to--date-lightgrey)](https://srynetix.github.io/adventofcode2020/adventofcode2020)
 

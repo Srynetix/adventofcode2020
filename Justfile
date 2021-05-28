@@ -27,6 +27,9 @@ lint-err:
 test:
 	cargo test --release --all
 
+test-cov:
+	cargo tarpaulin
+
 test-day day:
 	cargo test --release days::day{{ day }} {{ if opt_no_capture == "true" { "-- --nocapture" } else { "" } }}
 

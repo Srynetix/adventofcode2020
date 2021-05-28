@@ -188,17 +188,17 @@ impl PassportValidator {
             "byr" => {
                 // At least 1920 at most 2002
                 let value: usize = value.parse().unwrap();
-                value >= 1920 && value <= 2002
+                (1920..=2002).contains(&value)
             }
             "iyr" => {
                 // At least 2010 at most 2020
                 let value: usize = value.parse().unwrap();
-                value >= 2010 && value <= 2020
+                (2010..=2020).contains(&value)
             }
             "eyr" => {
                 // At least 2020 at most 2030
                 let value: usize = value.parse().unwrap();
-                value >= 2020 && value <= 2030
+                (2020..=2030).contains(&value)
             }
             "hgt" => {
                 if let Some(v) = HEIGHT_RGX.captures(value) {
@@ -210,9 +210,9 @@ impl PassportValidator {
 
                     match unit {
                         // At least 150 at most 193
-                        "cm" => amount >= 150 && amount <= 193,
+                        "cm" => (150..=193).contains(&amount),
                         // At least 59 at most 76
-                        "in" => amount >= 59 && amount <= 76,
+                        "in" => (59..=76).contains(&amount),
                         _ => unreachable!(),
                     }
                 } else {

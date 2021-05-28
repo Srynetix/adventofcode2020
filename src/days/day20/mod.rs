@@ -704,10 +704,10 @@ impl TileMatcher {
                         }
 
                         if is_matching {
-                            let v = matches.entry(t1.id).or_insert(vec![]);
+                            let v = matches.entry(t1.id).or_insert_with(Vec::new);
                             v.push((t2.id, *t1_d, *t2_d, is_inverted));
 
-                            let v = matches.entry(t2.id).or_insert(vec![]);
+                            let v = matches.entry(t2.id).or_insert_with(Vec::new);
                             v.push((t1.id, *t2_d, *t1_d, is_inverted));
                         }
                     }
